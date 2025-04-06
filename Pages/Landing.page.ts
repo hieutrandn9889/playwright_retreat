@@ -13,4 +13,8 @@ export class LandingPage extends PageActions {
     this.signUpBtn = page.locator('[href="/signup?redirect=/"]')
   }
 
+  async openUrl() {
+    await super.openUrl(this.baseUrl)
+  }
+
 }

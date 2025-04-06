@@ -2,6 +2,7 @@
 import { Locator, Page } from '@playwright/test'
 import { PageActions } from './PageActions'
 import { LandingPage } from './Landing.page'
+import { step } from '../utils/envName'
 
 interface signUpData {
   firstName: string
@@ -31,9 +32,11 @@ export class SignUpPage extends PageActions {
   }
 
   async fillSignUpForm(data: signUpData) {
-    await this.fillElement(this.firstNameInput, data.firstName)
-    await this.fillElement(this.lastNameInput, data.lastName)
-    await this.fillElement(this.emailInput, data.email)
-    await this.fillElement(this.passwordInput, data.password)
+    await step(`Fills sign up form`, async () => {
+      await this.fillElement(this.firstNameInput, data.firstName)
+      await this.fillElement(this.lastNameInput, data.lastName)
+      await this.fillElement(this.emailInput, data.email)
+      await this.fillElement(this.passwordInput, data.password)
+    })
   }
 }

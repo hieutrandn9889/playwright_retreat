@@ -10,16 +10,16 @@ export class PageActions {
     this.baseUrl = process.env.BASE_URL!
   }
 
-  private readonly prefix = 'UI Action: '
+  private readonly uiActionPrefix = 'UI Action: '
 
   async openUrl(url: string) {
-    await step(`${this.prefix}Navigates to URL: '${url}'`, async () => {
+    await step(`${this.uiActionPrefix}Navigates to URL: '${url}'`, async () => {
       await this.page.goto(url)
     })
   }
 
   async refreshPage() {
-    await step(`${this.prefix}Refreshes page`, async () => {
+    await step(`${this.uiActionPrefix}Refreshes page`, async () => {
       await this.page.reload()
       await this.page.waitForLoadState('load')
       await this.page.waitForLoadState('domcontentloaded')
@@ -29,7 +29,7 @@ export class PageActions {
   }
 
   async waitForUrl(url: string) {
-    await step(`${this.prefix}Waits until page URL is: '${url}'`, async () => {
+    await step(`${this.uiActionPrefix}Waits until page URL is: '${url}'`, async () => {
       await this.page.waitForURL(url)
       await this.page.waitForLoadState('load')
       await this.page.waitForLoadState('domcontentloaded')
@@ -39,14 +39,14 @@ export class PageActions {
   }
 
   async waitForElement(locator: Locator) {
-    await step(`${this.prefix}Waits until element: '${locator}' is visible`, async () => {
+    await step(`${this.uiActionPrefix}Waits until element: '${locator}' is visible`, async () => {
       await locator.waitFor()
     })
   }
 
   async waitForElementInvisible(locator: Locator) {
     await step(
-      `${this.prefix}Waits until element: '${locator}' is invisible`,
+      `${this.uiActionPrefix}Waits until element: '${locator}' is invisible`,
       async () => {
         await expect(locator).not.toBeVisible()
       }
@@ -55,7 +55,7 @@ export class PageActions {
 
   async waitForElementEnabled(locator: Locator) {
     await step(
-      `${this.prefix}Waits until element: '${locator}' doesn't have "disabled" attribute`,
+      `${this.uiActionPrefix}Waits until element: '${locator}' doesn't have "disabled" attribute`,
       async () => {
         await expect(locator).toBeEnabled()
       }
@@ -64,7 +64,7 @@ export class PageActions {
 
   async waitForElementEditable(locator: Locator) {
     await step(
-      `${this.prefix}Waits until element: '${locator}' doesn't have "readonly" property`,
+      `${this.uiActionPrefix}Waits until element: '${locator}' doesn't have "readonly" property`,
       async () => {
         await expect(locator).toBeEditable()
       }
@@ -72,13 +72,13 @@ export class PageActions {
   }
 
   async clickElement(locator: Locator) {
-    await step(`${this.prefix}Clicks element: '${locator}'`, async () => {
+    await step(`${this.uiActionPrefix}Clicks element: '${locator}'`, async () => {
       await locator.click()
     })
   }
 
   async clickElementForce(locator: Locator) {
-    await step(`${this.prefix}Force-clicks element: '${locator}'`, async () => {
+    await step(`${this.uiActionPrefix}Force-clicks element: '${locator}'`, async () => {
       await locator.click({
         button: 'middle',
         clickCount: 10,
@@ -88,7 +88,7 @@ export class PageActions {
   }
 
   async clickElementCentre(locator: Locator) {
-    await step(`${this.prefix}Clicks element centre: '${locator}'`, async () => {
+    await step(`${this.uiActionPrefix}Clicks element centre: '${locator}'`, async () => {
       const box = await locator.boundingBox()
       // await selector.scrollIntoViewIfNeeded()
       await this.page.mouse.click(box.x + box.width / 2, box.y + box.height / 2)
@@ -97,7 +97,7 @@ export class PageActions {
 
   async fillElement(locatorToFill: Locator, text: string, maxRetries: number = 10) {
     await step(
-      `${this.prefix}Fills element: '${locatorToFill}' with text: '${text}'`,
+      `${this.uiActionPrefix}Fills element: '${locatorToFill}' with text: '${text}'`,
       async () => {
         let retries = 0
 
@@ -141,14 +141,14 @@ export class PageActions {
   }
 
   async pressKey(key: string) {
-    await step(`${this.prefix}Presses '${key}' key`, async () => {
+    await step(`${this.uiActionPrefix}Presses '${key}' key`, async () => {
       await this.page.keyboard.press(key)
     })
   }
 
   async checkElementAttribute(locator: Locator, attr: string, value: string) {
     await step(
-      `${this.prefix}Gets attribute: '${attr}' from element: '${locator}'`,
+      `${this.uiActionPrefix}Gets attribute: '${attr}' from element: '${locator}'`,
       async () => {
         const attribute = await locator.getAttribute(attr)
         await expect(attribute).toEqual(value)
@@ -163,7 +163,7 @@ export class PageActions {
     timeout: number = 10000
   ) {
     await step(
-      `${this.prefix}Waits for element '${locator}' to have attribute '${attribute}'${expectedValue ? ` with value: '${expectedValue}'` : ''}`,
+      `${this.uiActionPrefix}Waits for element '${locator}' to have attribute '${attribute}'${expectedValue ? ` with value: '${expectedValue}'` : ''}`,
       async () => {
         const startTime = Date.now()
 
@@ -197,7 +197,7 @@ export class PageActions {
   }
 
   async checkElementText(locator: Locator, text: string) {
-    await step(`${this.prefix}Checks text from element: '${locator}'`, async () => {
+    await step(`${this.uiActionPrefix}Checks text from element: '${locator}'`, async () => {
       const textValue = await locator.textContent()
       await expect(textValue).toEqual(text)
     })
@@ -209,7 +209,7 @@ export class PageActions {
     timeout: number = 30000
   ) {
     await step(
-      `${this.prefix}Waits for element '${locator}' to have text: '${expectedText}'`,
+      `${this.uiActionPrefix}Waits for element '${locator}' to have text: '${expectedText}'`,
       async () => {
         const startTime = Date.now()
 
@@ -234,7 +234,7 @@ export class PageActions {
 
   async getElementText(locator: Locator) {
     let text
-    await step(`${this.prefix}Gets text from element: '${locator}'`, async () => {
+    await step(`${this.uiActionPrefix}Gets text from element: '${locator}'`, async () => {
       text = await locator.textContent()
     })
     return text as string
@@ -242,7 +242,7 @@ export class PageActions {
 
   async selectDropdownOption(locator: Locator, option: Locator) {
     await step(
-      `${this.prefix}Selects option '${option}' from dropdown '${locator}'`,
+      `${this.uiActionPrefix}Selects option '${option}' from dropdown '${locator}'`,
       async () => {
         await locator.click()
         await option.click()
@@ -251,27 +251,27 @@ export class PageActions {
   }
 
   async checkCheckbox(locator: Locator) {
-    await step(`${this.prefix}Checks checkbox '${locator}'`, async () => {
+    await step(`${this.uiActionPrefix}Checks checkbox '${locator}'`, async () => {
       await locator.check()
       await expect(locator).toBeChecked()
     })
   }
 
   async isCheckboxChecked(locator: Locator) {
-    await step(`${this.prefix}Checks checkbox '${locator}'`, async () => {
+    await step(`${this.uiActionPrefix}Checks checkbox '${locator}'`, async () => {
       await expect(locator).toBeChecked()
     })
   }
 
   async uncheckCheckbox(locator: Locator) {
-    await step(`${this.prefix}Unchecks checkbox '${locator}'`, async () => {
+    await step(`${this.uiActionPrefix}Unchecks checkbox '${locator}'`, async () => {
       await locator.uncheck()
       await expect(locator).not.toBeChecked()
     })
   }
 
   async isCheckboxUnchecked(locator: Locator) {
-    await step(`${this.prefix}Checks checkbox '${locator}'`, async () => {
+    await step(`${this.uiActionPrefix}Checks checkbox '${locator}'`, async () => {
       await expect(locator).not.toBeChecked()
     })
   }
@@ -279,7 +279,7 @@ export class PageActions {
   async getCookie(URL: string, cookieName: string): Promise<string> {
     let valueOfCookie = ''
 
-    await step(`${this.prefix}Gets cookie '${cookieName}'`, async () => {
+    await step(`${this.uiActionPrefix}Gets cookie '${cookieName}'`, async () => {
       const cookies = await this.page.context().cookies(URL)
       const cookie = cookies.find(c => c.name === cookieName)
       if (cookie) {
@@ -291,7 +291,7 @@ export class PageActions {
   }
 
   async setCookie(cookieName: string, cookieValue: string) {
-    await step(`${this.prefix}Sets cookie '${cookieName}'`, async () => {
+    await step(`${this.uiActionPrefix}Sets cookie '${cookieName}'`, async () => {
       // Set the cookie
       await this.page.evaluate(
         ({ name, value }) => {
