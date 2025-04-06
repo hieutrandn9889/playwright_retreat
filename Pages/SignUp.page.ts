@@ -30,7 +30,7 @@ export class SignUpPage extends PageActions {
     await this.clickElement(this.landingPage.signUpBtn)
   }
 
-  async joinTheWaitlist(data: signUpData) {
+  async fillSignUpForm(data: signUpData) {
     await this.fillElement(this.firstNameInput, data.firstName)
     await this.fillElement(this.lastNameInput, data.lastName)
     await this.fillElement(this.emailInput, data.email)
