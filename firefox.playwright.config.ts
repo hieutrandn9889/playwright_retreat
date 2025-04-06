@@ -1,6 +1,6 @@
-import { PlaywrightTestConfig } from '@playwright/test';
-import base from '../Configs/playwright.config';
-import { globTimeout } from '../Configs/playwright.config';
+import { PlaywrightTestConfig } from '@playwright/test'
+import base from './playwright.config'
+import { globTimeout } from './playwright.config'
 
 const config: PlaywrightTestConfig = {
   ...base,
@@ -10,20 +10,20 @@ const config: PlaywrightTestConfig = {
   retries: 0,
   use: {
     ...base.use,
-    headless: true,
-    viewport: null,
+    browserName: 'firefox',
+    headless: false,
+    viewport: { width: 1920, height: 1280 },
     ignoreHTTPSErrors: true,
     launchOptions: {
       slowMo: 250,
-      channel: 'chrome',
       args: [
-        '--start-maximized',
         '--disable-extensions',
         '--incognito',
         '--test-type=browser',
         '--disable-dev-shm-usage'
       ]
     }
-  },
-};
-export default config;
+  }
+}
+
+export default config

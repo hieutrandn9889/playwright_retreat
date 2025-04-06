@@ -8,9 +8,9 @@
     "kill_npm": "pkill -f 'npm run'",
     "setup": "npm i && npm i -g ts-node && npx playwright install --with-deps",
     "ui_mode_prod": "cross-env test_env=prod npx playwright test --ui --project=all",
-    "run:template:prod": "cross-env test_env=prod npx playwright test --config=template.playwright.config.ts --project=template",
+    "template:prod": "clear && node run-playwright.js chrome template prod",
     "pretify": "npx prettier --write './APIs' './Pages' './TestData' './tests'",
-    "run:bookretreats:e2e:tests:prod": "cross-env test_env=prod npx playwright test --config=mpp2.chrome.playwright.config.ts --project=bookretreats:e2e"
+    "bookretreats:e2e:tests:prod": "clear && node run-playwright.js chrome bookretreats:e2e prod"
   },
   "types": "./global.d.ts",
   "repository": {

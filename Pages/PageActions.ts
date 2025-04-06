@@ -1,8 +1,7 @@
 import { step } from '../utils/envName'
-import { Locator, Page, expect } from "@playwright/test"
+import { Locator, Page, expect } from '@playwright/test'
 
 export class PageActions {
-
   readonly page: Page
   readonly baseUrl: string
 
@@ -11,7 +10,7 @@ export class PageActions {
     this.baseUrl = process.env.BASE_URL!
   }
 
-  private readonly prefix = "UI Action: "
+  private readonly prefix = 'UI Action: '
 
   async openUrl(url: string) {
     await step(`${this.prefix}Navigates to URL: '${url}'`, async () => {
@@ -46,21 +45,30 @@ export class PageActions {
   }
 
   async waitForElementInvisible(locator: Locator) {
-    await step(`${this.prefix}Waits until element: '${locator}' is invisible`, async () => {
-      await expect(locator).not.toBeVisible()
-    })
+    await step(
+      `${this.prefix}Waits until element: '${locator}' is invisible`,
+      async () => {
+        await expect(locator).not.toBeVisible()
+      }
+    )
   }
 
   async waitForElementEnabled(locator: Locator) {
-    await step(`${this.prefix}Waits until element: '${locator}' doesn't have "disabled" attribute`, async () => {
-      await expect(locator).toBeEnabled()
-    })
+    await step(
+      `${this.prefix}Waits until element: '${locator}' doesn't have "disabled" attribute`,
+      async () => {
+        await expect(locator).toBeEnabled()
+      }
+    )
   }
 
   async waitForElementEditable(locator: Locator) {
-    await step(`${this.prefix}Waits until element: '${locator}' doesn't have "readonly" property`, async () => {
-      await expect(locator).toBeEditable()
-    })
+    await step(
+      `${this.prefix}Waits until element: '${locator}' doesn't have "readonly" property`,
+      async () => {
+        await expect(locator).toBeEditable()
+      }
+    )
   }
 
   async clickElement(locator: Locator) {
@@ -74,7 +82,7 @@ export class PageActions {
       await locator.click({
         button: 'middle',
         clickCount: 10,
-        delay: 250
+        delay: 250,
       })
     })
   }
@@ -88,43 +96,48 @@ export class PageActions {
   }
 
   async fillElement(locatorToFill: Locator, text: string, maxRetries: number = 10) {
-    await step(`${this.prefix}Fills element: '${locatorToFill}' with text: '${text}'`, async () => {
-      let retries = 0
+    await step(
+      `${this.prefix}Fills element: '${locatorToFill}' with text: '${text}'`,
+      async () => {
+        let retries = 0
 
-      while (retries < maxRetries) {
-        const isVisible = await locatorToFill.isVisible()
-        const isEnabled = await locatorToFill.isEnabled()
+        while (retries < maxRetries) {
+          const isVisible = await locatorToFill.isVisible()
+          const isEnabled = await locatorToFill.isEnabled()
 
-        if (isVisible && isEnabled) {
-          await locatorToFill.clear()
-          
-          for (const char of text) {
-            await locatorToFill.type(char)
-            await this.page.waitForTimeout(100) // Small delay to emulate typing
-          }
+          if (isVisible && isEnabled) {
+            await locatorToFill.clear()
 
-          const value = await locatorToFill.inputValue()
+            for (const char of text) {
+              await locatorToFill.type(char)
+              await this.page.waitForTimeout(100) // Small delay to emulate typing
+            }
 
-          if (value === text) {
-            console.log(`Input value is: ${value}, good.`)
-            break
+            const value = await locatorToFill.inputValue()
+
+            if (value === text) {
+              console.log(`Input value is: ${value}, good.`)
+              break
+            } else {
+              console.log(`Input value is: ${value}, retrying...`)
+              retries++
+              await locatorToFill.waitFor({ state: 'visible', timeout: 5000 })
+            }
           } else {
-            console.log(`Input value is: ${value}, retrying...`)
+            console.log(`Input is not visible or not enabled. Retrying...`)
             retries++
             await locatorToFill.waitFor({ state: 'visible', timeout: 5000 })
           }
-        } else {
-          console.log(`Input is not visible or not enabled. Retrying...`)
-          retries++
-          await locatorToFill.waitFor({ state: 'visible', timeout: 5000 })
+        }
+
+        if (retries === maxRetries) {
+          const lastValue = await locatorToFill.inputValue()
+          throw new Error(
+            `Failed to fill the text input after maximum retries. Last attempted value: ${lastValue}`
+          )
         }
       }
-
-      if (retries === maxRetries) {
-        const lastValue = await locatorToFill.inputValue()
-        throw new Error(`Failed to fill the text input after maximum retries. Last attempted value: ${lastValue}`)
-      }
-    })
+    )
   }
 
   async pressKey(key: string) {
@@ -134,10 +147,13 @@ export class PageActions {
   }
 
   async checkElementAttribute(locator: Locator, attr: string, value: string) {
-    await step(`${this.prefix}Gets attribute: '${attr}' from element: '${locator}'`, async () => {
-      const attribute = await locator.getAttribute(attr)
-      await expect(attribute).toEqual(value)
-    })
+    await step(
+      `${this.prefix}Gets attribute: '${attr}' from element: '${locator}'`,
+      async () => {
+        const attribute = await locator.getAttribute(attr)
+        await expect(attribute).toEqual(value)
+      }
+    )
   }
 
   async waitForElementAttribute(
@@ -146,36 +162,39 @@ export class PageActions {
     expectedValue?: string,
     timeout: number = 10000
   ) {
-    await step(`${this.prefix}Waits for element '${locator}' to have attribute '${attribute}'${expectedValue ? ` with value: '${expectedValue}'` : ''}`, async () => {
-      const startTime = Date.now()
-  
-      while (true) {
-        const attributeValue = await locator.getAttribute(attribute)
-  
-        // Ensure the attribute exists
-        if (attributeValue !== null) {
-          // If expectedValue is provided, check for a match
-          if (expectedValue) {
-            if (attributeValue.trim() === expectedValue) {
+    await step(
+      `${this.prefix}Waits for element '${locator}' to have attribute '${attribute}'${expectedValue ? ` with value: '${expectedValue}'` : ''}`,
+      async () => {
+        const startTime = Date.now()
+
+        while (true) {
+          const attributeValue = await locator.getAttribute(attribute)
+
+          // Ensure the attribute exists
+          if (attributeValue !== null) {
+            // If expectedValue is provided, check for a match
+            if (expectedValue) {
+              if (attributeValue.trim() === expectedValue) {
+                return
+              }
+            } else {
+              // If only checking for attribute existence, exit once found
               return
             }
-          } else {
-            // If only checking for attribute existence, exit once found
-            return
           }
+
+          // Timeout check
+          if (Date.now() - startTime > timeout) {
+            throw new Error(
+              `Timeout exceeded while waiting for element '${locator}' to have attribute '${attribute}'${expectedValue ? ` with value '${expectedValue}'` : ''}.`
+            )
+          }
+
+          await new Promise(resolve => setTimeout(resolve, 1000))
         }
-  
-        // Timeout check
-        if (Date.now() - startTime > timeout) {
-          throw new Error(
-            `Timeout exceeded while waiting for element '${locator}' to have attribute '${attribute}'${expectedValue ? ` with value '${expectedValue}'` : ''}.`
-          )
-        }
-  
-        await new Promise(resolve => setTimeout(resolve, 1000))
       }
-    })
-  }  
+    )
+  }
 
   async checkElementText(locator: Locator, text: string) {
     await step(`${this.prefix}Checks text from element: '${locator}'`, async () => {
@@ -184,26 +203,33 @@ export class PageActions {
     })
   }
 
-  async waitForElementText(locator: Locator, expectedText: string, timeout: number = 30000) {
-    await step(`${this.prefix}Waits for element '${locator}' to have text: '${expectedText}'`, async () => {
-      const startTime = Date.now()
-  
-      while (true) {
-        const textValue = await locator.textContent()
-  
-        if (textValue?.trim() === expectedText) {
-          return
+  async waitForElementText(
+    locator: Locator,
+    expectedText: string,
+    timeout: number = 30000
+  ) {
+    await step(
+      `${this.prefix}Waits for element '${locator}' to have text: '${expectedText}'`,
+      async () => {
+        const startTime = Date.now()
+
+        while (true) {
+          const textValue = await locator.textContent()
+
+          if (textValue?.trim() === expectedText) {
+            return
+          }
+
+          if (Date.now() - startTime > timeout) {
+            throw new Error(
+              `Timeout exceeded while waiting for element '${locator}' to have text '${expectedText}'. Actual text: '${textValue}'`
+            )
+          }
+
+          await new Promise(resolve => setTimeout(resolve, 1000))
         }
-  
-        if (Date.now() - startTime > timeout) {
-          throw new Error(
-            `Timeout exceeded while waiting for element '${locator}' to have text '${expectedText}'. Actual text: '${textValue}'`
-          )
-        }
-  
-        await new Promise(resolve => setTimeout(resolve, 1000))
       }
-    })
+    )
   }
 
   async getElementText(locator: Locator) {
@@ -215,10 +241,13 @@ export class PageActions {
   }
 
   async selectDropdownOption(locator: Locator, option: Locator) {
-    await step(`${this.prefix}Selects option '${option}' from dropdown '${locator}'`, async () => {
-      await locator.click()
-      await option.click()
-    })
+    await step(
+      `${this.prefix}Selects option '${option}' from dropdown '${locator}'`,
+      async () => {
+        await locator.click()
+        await option.click()
+      }
+    )
   }
 
   async checkCheckbox(locator: Locator) {
@@ -249,7 +278,7 @@ export class PageActions {
 
   async getCookie(URL: string, cookieName: string): Promise<string> {
     let valueOfCookie = ''
-    
+
     await step(`${this.prefix}Gets cookie '${cookieName}'`, async () => {
       const cookies = await this.page.context().cookies(URL)
       const cookie = cookies.find(c => c.name === cookieName)
@@ -257,28 +286,30 @@ export class PageActions {
         valueOfCookie = `${cookieName}=${cookie.value}`
       }
     })
-  
+
     return valueOfCookie
   }
 
   async setCookie(cookieName: string, cookieValue: string) {
     await step(`${this.prefix}Sets cookie '${cookieName}'`, async () => {
       // Set the cookie
-      await this.page.evaluate(({ name, value }) => {
-        document.cookie = `${name}=${value}`
-      }, { name: cookieName, value: cookieValue })
-    
+      await this.page.evaluate(
+        ({ name, value }) => {
+          document.cookie = `${name}=${value}`
+        },
+        { name: cookieName, value: cookieValue }
+      )
+
       // Check if the cookie was set
-      const cookieSet = await this.page.evaluate((name) => {
+      const cookieSet = await this.page.evaluate(name => {
         const cookies = document.cookie
         return cookies.includes(name)
       }, cookieName)
-    
+
       // Throw an error if the cookie wasn't set
       if (!cookieSet) {
         throw new Error(`Cookie "${cookieName}" was not set.`)
       }
     })
   }
-
 }

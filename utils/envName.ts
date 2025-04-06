@@ -1,21 +1,13 @@
-import { test as base, expect as playwrightExpect } from '@playwright/test'
+import { test as base, expect } from '@playwright/test'
 import { color } from './common'
 import { PageManager } from './pageManager'
 
-// Define your test fixtures
-export type TestFixtures = {
-  saveLogs: void // Custom saveLogs fixture
-  pageManager: PageManager // PageManager fixture
+type TestFixtures = {
+  saveLogs: void
+  pageManager: PageManager
 }
 
-// If you have worker fixtures, define and export them as well
-export type WorkerFixtures = {
-  // Define worker-level fixtures here
-}
-
-// Custom test with extended fixtures
-export const test = base.extend<TestFixtures, WorkerFixtures>({
-  // Custom fixture for logging environment variables
+export const test = base.extend<TestFixtures>({
   saveLogs: [
     async ({}, use) => {
       console.log(color.info(`<<< ENVIRONMENT: ${process.env.ENV_NAME} >>>`))
@@ -24,15 +16,12 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
     },
     { auto: true },
   ],
-
-  // Custom fixture for the PageManager
   pageManager: async ({ page }, use) => {
-    const pageManager = new PageManager(page) // Initialize PageManager
-    await use(pageManager) // Provide it in the test context
+    const pageManager = new PageManager(page)
+    await use(pageManager)
   },
 })
 
-// Step function for enhanced logging
 export const step = async (name: string, callback: () => Promise<void>): Promise<void> => {
   try {
     await test.step(name, callback)
@@ -47,5 +36,4 @@ export const step = async (name: string, callback: () => Promise<void>): Promise
   }
 }
 
-// Export expect from Playwright
-export const expect = playwrightExpect
+export { expect }

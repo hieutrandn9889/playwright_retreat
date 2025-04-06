@@ -3,14 +3,13 @@ import { Locator, Page } from '@playwright/test'
 import { PageActions } from './PageActions'
 
 interface signUpData {
-  firstName: string,
-  lastName: string,
-  email: string,
+  firstName: string
+  lastName: string
+  email: string
   zipCode: string
 }
 
 export class SignUp extends PageActions {
-
   firstNameInput: Locator
   lastNameInput: Locator
   emailInput: Locator
@@ -36,5 +35,4 @@ export class SignUp extends PageActions {
     await this.clickElement(this.subscribeBtn)
     await this.checkElementText(this.successText, 'Thank you for signing up!')
   }
-
 }

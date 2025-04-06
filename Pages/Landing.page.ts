@@ -3,7 +3,6 @@ import { Locator, Page } from '@playwright/test'
 import { PageActions } from './PageActions'
 
 export class Landing extends PageActions {
-
   constructor(page: Page) {
     super(page)
   }
@@ -11,5 +10,4 @@ export class Landing extends PageActions {
   async joinTheWaitlist() {
     await this.openUrl(this.baseUrl)
   }
-
 }

@@ -10,5 +10,5 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
   },
-  "include": ["**/*.ts", "./**/*.json", "tests/**/**/*.spec.ts", "Configs/*.playwright.config.ts"]
+  "include": ["**/*.ts", "./**/*.json", "tests/**/**/*.spec.ts"]
 }
