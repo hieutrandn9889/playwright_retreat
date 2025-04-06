@@ -1,9 +1,10 @@
 import { test, step, expect } from "../../../utils/envName"
+import { validSignUpData } from '../../../TestData/signUp.data'
 
-test.describe('spec', () => {
-  test('test', async () => {
-    await step('passes', async () => {
-      expect(true).toBe(true)
+test.describe('Bookretreats: E2E Tests', () => {
+  test('Valid Sign Up', async ({ pageManager }) => {
+    await step('signs up with valid data', async () => {
+      await pageManager.signUpPage.clickSignUpBtn()
     })
   })
 })

@@ -1,7 +1,7 @@
 import { Page } from '@playwright/test'
 import { PageActions } from '../Pages/PageActions'
-import { Landing } from '../Pages/Landing.page'
-import { SignUp } from '../Pages/SignUp.page'
+import { LandingPage } from '../Pages/Landing.page'
+import { SignUpPage } from '../Pages/SignUp.page'
 
 export class PageManager {
   page: Page
@@ -11,10 +11,10 @@ export class PageManager {
   get pageActions(): PageActions {
     return new PageActions(this.page)
   }
-  get landing(): Landing {
-    return new Landing(this.page)
+  get landingPage(): LandingPage {
+    return new LandingPage(this.page)
   }
-  get signUp(): SignUp {
-    return new SignUp(this.page)
+  get signUpPage(): SignUpPage {
+    return new SignUpPage(this.page)
   }
 }

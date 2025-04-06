@@ -1,38 +1,39 @@
 // Documentation https://playwright.dev/docs/api/class-apirequestcontext
 import { Locator, Page } from '@playwright/test'
 import { PageActions } from './PageActions'
+import { LandingPage } from './Landing.page'
 
 interface signUpData {
   firstName: string
   lastName: string
   email: string
-  zipCode: string
+  password: string
 }
 
-export class SignUp extends PageActions {
+export class SignUpPage extends PageActions {
   firstNameInput: Locator
   lastNameInput: Locator
   emailInput: Locator
-  zipInput: Locator
-  subscribeBtn: Locator
-  successText: Locator
+  passwordInput: Locator
+  landingPage: LandingPage
 
   constructor(page: Page) {
     super(page)
-    this.firstNameInput = page.locator('#firstName')
-    this.lastNameInput = page.locator('#lastName')
-    this.emailInput = page.locator('#email')
-    this.zipInput = page.locator('#zipCode')
-    this.subscribeBtn = page.locator('#subscribe')
-    this.successText = page.locator('#success')
+    this.landingPage = new LandingPage(page)
+    this.firstNameInput = page.locator('input#first_name').first()
+    this.lastNameInput = page.locator('input#last_name').first()
+    this.emailInput = page.locator('#singup-form input[name="email"]').first()
+    this.passwordInput = page.locator('#singup-form input[name="password"]').first()
+  }
+
+  async clickSignUpBtn() {
+    await this.clickElement(this.landingPage.signUpBtn)
   }
 
   async joinTheWaitlist(data: signUpData) {
     await this.fillElement(this.firstNameInput, data.firstName)
     await this.fillElement(this.lastNameInput, data.lastName)
     await this.fillElement(this.emailInput, data.email)
-    await this.fillElement(this.zipInput, data.zipCode)
-    await this.clickElement(this.subscribeBtn)
-    await this.checkElementText(this.successText, 'Thank you for signing up!')
+    await this.fillElement(this.passwordInput, data.password)
   }
 }
