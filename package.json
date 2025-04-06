@@ -1,0 +1,33 @@
+{
+  "name": "playwright-bookretreats",
+  "version": "1.0.0",
+  "description": "Playwright Retreats tests",
+  "main": "index.js",
+  "scripts": {
+    "kill-processes": "./scripts/kill_processes.sh",
+    "kill_npm": "pkill -f 'npm run'",
+    "setup": "npm i && npm i -g ts-node && npx playwright install --with-deps",
+    "ui_mode_prod": "cross-env test_env=prod npx playwright test --ui --project=all",
+    "run:template:prod": "cross-env test_env=prod npx playwright test --config=template.playwright.config.ts --project=template",
+    "pretify": "npx prettier --write './APIs' './Pages' './TestData' './tests'",
+    "run:bookretreats:e2e:tests:prod": "cross-env test_env=prod npx playwright test --config=mpp2.chrome.playwright.config.ts --project=bookretreats:e2e"
+  },
+  "types": "./global.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/alexzavg/playwright_retreat"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "@aws-crypto/crc32": "^5.2.0",
+    "@playwright/test": "^1.49.1",
+    "@types/xml2js": "^0.4.14",
+    "aws-sdk": "^2.1692.0",
+    "chalk": "^4.1.2",
+    "cross-env": "^7.0.3",
+    "dotenv": "^16.3.1",
+    "fs": "^0.0.1-security",
+    "path": "^0.12.7",
+    "playwright": "^1.49.1"
+  }
+}

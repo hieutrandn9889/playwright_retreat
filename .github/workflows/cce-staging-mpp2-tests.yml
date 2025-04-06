@@ -1,0 +1,65 @@
+name: MPP 2.0 staging tests
+run-name: 🧪 MPP 2.0 staging tests (${{ github.event_name == 'schedule' && 'ALL' || inputs.test_suite }}) runid - ${{ github.run_id }}
+
+on:
+  schedule:
+    - cron: '15 9 * * 1-5' # For STAGE, runs on weekdays at (11:15 Kiev Standard Time UTC+2) (12:15 during Daylight Saving Time UTC+3)
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to run the tests against'
+        required: true
+        default: 'STAGE'
+        type: choice
+        options:
+          - STAGE
+      test_suite:
+        description: 'Test suite(s) to run'
+        required: true
+        default: 'ALL'
+        type: choice
+        options:
+          - ALL
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event.inputs.environment }}
+  cancel-in-progress: false
+
+jobs:
+  prepare_env:
+      name: 🛠️ Dependencies
+      uses: ./.github/workflows/cce-common-job-prepare-env.yml
+      with:
+        NODE_VERSION: 22.x
+        TEST_SUITE:   ${{ github.event_name == 'schedule' && 'ALL' || inputs.test_suite }}
+        ENVIRONMENT:  ${{ github.event_name == 'schedule' && 'STAGE' || inputs.environment }}
+      secrets: inherit
+
+  mpp2_test:
+    name: 🧪
+    needs: [ prepare_env ]
+    uses: ./.github/workflows/cce-common-job-mpp2-tests.yml
+    strategy:
+      fail-fast: false
+      matrix:
+        test_suite: ${{ fromJSON( needs.prepare_env.outputs.test_suits ) }}
+    with:
+      NODE_VERSION:   22.x
+      ENVIRONMENT:    ${{ github.event_name == 'schedule' && 'STAGE' || inputs.environment }}
+      TEST_SUITE:     ${{ matrix.test_suite }}
+      SECRETS_PREFIX: staging
+    secrets: inherit
+
+  slack_notification:
+    name: 📬 Slack
+    needs: [ mpp2_test, prepare_env ]
+    uses: ./.github/workflows/cce-common-job-slack.yml
+    with:
+      ENVIRONMENT:            ${{ github.event_name == 'schedule' && 'STAGE' || inputs.environment }}
+      CI_PIPELINE_URL:        "https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}"
+      STATUS:                 ${{ needs.mpp2_test.result }}
+      SLACK_TEMPLATE:         test *MPP 2.0 (suite ${{ github.event_name == 'schedule' && 'ALL' || inputs.test_suite }})* has
+      SLACK_TRIGGER:          ${{ github.event_name }}
+      SLACK_TRIGGER_USERNAME: ${{ github.triggering_actor }}
+      TEST_SUITES:            ${{ needs.prepare_env.outputs.test_suits }}
+    secrets: inherit

@@ -1,0 +1,97 @@
+on:
+  workflow_call:
+
+    inputs:
+      ENVIRONMENT:
+        required: true
+        type:     string
+      NODE_VERSION:
+        required: true
+        type:     string
+      TEST_SUITE:
+        required: true
+        type:     string
+
+    outputs:
+      test_suits:
+        value: ${{ jobs.prepare_env_template.outputs.test_suits }}
+
+env:
+  ALL_TEST_SUITES_STAGE: 'INTEGRATION MPP2_NEW_ENROLLMENT MPP2_EXISTING_ENROLLMENT MPP2_CHASE_FLOWS MPP2_TLP MPP2_RENEWALS MPP2_OUT_OF_AREA'
+  #ALL_TEST_SUITES_PROD:  'INTEGRATION MPP2_NEW_ENROLLMENT MPP2_EXISTING_ENROLLMENT MPP2_CHASE_FLOWS MPP2_RENEWALS'
+
+jobs:
+  prepare_env_template:
+    name: common
+    runs-on: ubuntu-latest
+    outputs:
+      test_suits: ${{ inputs.TEST_SUITE == 'ALL' && steps.all.outputs.test_suits || steps.specific.outputs.test_suits}}
+    steps:
+      - name: 🔎 List all environment variables
+        run: env | sort
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: 📗 Use node.js ${{ inputs.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.NODE_VERSION }}
+
+      - name: 🔑 Keys for cache
+        run: echo "nodejs_ver=$(node -v)-$(npm -v)" >> $GITHUB_ENV
+
+      - name: 🔁 Restore cache (npm dependencies)
+        uses: actions/cache@v4
+        id: cache
+        with:
+          path: node_modules
+          key:  ${{ runner.os }}-${{ env.nodejs_ver }}-${{ hashFiles('package-lock.json') }}
+
+      - name: 🔽 Install dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: npm ci
+
+      - name: 🚦 Choose specific test_suits to run
+        if: inputs.TEST_SUITE != 'ALL'
+        id: specific
+        run: echo "test_suits=['${{ inputs.TEST_SUITE }}']" >> $GITHUB_OUTPUT
+
+      - name: 🚦 Choose all test_suits to run
+        if: inputs.TEST_SUITE == 'ALL'
+        id: all
+        run: |
+          test_suits='['
+          all_test_suits=$(echo '${{ env[format('ALL_TEST_SUITES_{0}', inputs.ENVIRONMENT)] }}')
+          for test_suit in $all_test_suits
+          do
+            test_suits+="'$test_suit',"
+          done
+          test_suits=${test_suits::${#test_suits}-1}
+          test_suits+=']'
+          echo "test_suits=$( echo $test_suits )" >> $GITHUB_OUTPUT
+          echo "test_suits - $test_suits"
+
+      - name: 📟 Install Playwright driver
+        if: github.workflow == 'MPP 2.0 staging tests'
+        run: npx playwright install chrome
+
+      - name: 🔐 Configure AWS
+        if: github.workflow == 'MPP 2.0 staging tests'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region:            ${{ secrets.AWS_DEFAULT_REGION }}
+          mask-aws-account-id:   true
+
+      - name: 🔑 Pull staging config into .env.stage file
+        if: github.workflow == 'MPP 2.0 staging tests'
+        uses: cleanchoice/cce-aws-secrets-manager-read-action@main
+        with:
+          secret-id:          cce-staging-martech-playwright-template-config-file
+          append-to-env-file: .env.stage
+
+      - name: ⚙️ Turn staging env on
+        if: github.workflow == 'MPP 2.0 staging tests'
+        run: xvfb-run npm run mpp2_stage_sync_on
