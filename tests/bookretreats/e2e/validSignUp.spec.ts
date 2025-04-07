@@ -5,7 +5,8 @@ test.describe('Bookretreats: E2E Tests', () => {
   test('Valid Sign Up', async ({ pageManager }) => {
     await step('signs up with valid data', async () => {
       await pageManager.landingPage.openUrl()
-      await pageManager.signUpPage.clickSignUpBtn()
+      await pageManager.landingPage.clickMenuBtn()
+      await pageManager.landingPage.clickSignUpBtn()
       await pageManager.signUpPage.fillSignUpForm(validSignUpData)
     })
   })

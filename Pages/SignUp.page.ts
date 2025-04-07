@@ -1,7 +1,6 @@
 // Documentation https://playwright.dev/docs/api/class-apirequestcontext
 import { Locator, Page } from '@playwright/test'
 import { PageActions } from './PageActions'
-import { LandingPage } from './Landing.page'
 import { step } from '../utils/envName'
 
 interface signUpData {
@@ -16,19 +15,13 @@ export class SignUpPage extends PageActions {
   lastNameInput: Locator
   emailInput: Locator
   passwordInput: Locator
-  landingPage: LandingPage
 
   constructor(page: Page) {
     super(page)
-    this.landingPage = new LandingPage(page)
     this.firstNameInput = page.locator('input#first_name').first()
     this.lastNameInput = page.locator('input#last_name').first()
     this.emailInput = page.locator('#singup-form input[name="email"]').first()
     this.passwordInput = page.locator('#singup-form input[name="password"]').first()
-  }
-
-  async clickSignUpBtn() {
-    await this.clickElement(this.landingPage.signUpBtn)
   }
 
   async fillSignUpForm(data: signUpData) {
