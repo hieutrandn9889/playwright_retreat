@@ -9,7 +9,7 @@ export class LandingPage extends PageActions {
 
   constructor(page: Page) {
     super(page)
-    this.menuBtn = page.locator('nav.flex.items-center >> button:has-text("Menu")')
+    this.menuBtn = page.locator('//span[text()="Menu"]').first()
     this.signUpBtn = page.locator('[href="/signup?redirect=/"]')
   }
 

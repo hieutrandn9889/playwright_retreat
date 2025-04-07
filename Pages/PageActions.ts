@@ -97,6 +97,46 @@ export class PageActions {
 
   async fillElement(locatorToFill: Locator, text: string, maxRetries: number = 10) {
     await step(
+      `${this.uiActionPrefix}Fills element: '${locatorToFill}' with text: '${text}' using native fill`,
+      async () => {
+        let retries = 0
+
+        while (retries < maxRetries) {
+          const isVisible = await locatorToFill.isVisible()
+          const isEnabled = await locatorToFill.isEnabled()
+
+          if (isVisible && isEnabled) {
+            await locatorToFill.clear()
+            await locatorToFill.fill(text)
+            const value = await locatorToFill.inputValue()
+
+            if (value === text) {
+              console.log(`✅ Input value is: ${value}, good.`)
+              break
+            } else {
+              console.log(`❌ Input value is: ${value}, retrying...`)
+              retries++
+              await locatorToFill.waitFor({ state: 'visible', timeout: 5000 })
+            }
+          } else {
+            console.log(`❌ Input is not visible or not enabled. Retrying...`)
+            retries++
+            await locatorToFill.waitFor({ state: 'visible', timeout: 5000 })
+          }
+        }
+
+        if (retries === maxRetries) {
+          const lastValue = await locatorToFill.inputValue()
+          throw new Error(
+            `❌ Failed to fill the text input after maximum retries. Last attempted value: ${lastValue}`
+          )
+        }
+      }
+    )
+  }
+
+  async fillElementAsRealUser(locatorToFill: Locator, text: string, maxRetries: number = 10) {
+    await step(
       `${this.uiActionPrefix}Fills element: '${locatorToFill}' with text: '${text}'`,
       async () => {
         let retries = 0
@@ -110,21 +150,20 @@ export class PageActions {
 
             for (const char of text) {
               await locatorToFill.type(char)
-              await this.page.waitForTimeout(100) // Small delay to emulate typing
             }
 
             const value = await locatorToFill.inputValue()
 
             if (value === text) {
-              console.log(`Input value is: ${value}, good.`)
+              console.log(`✅ Input value is: ${value}, good.`)
               break
             } else {
-              console.log(`Input value is: ${value}, retrying...`)
+              console.log(`❌ Input value is: ${value}, retrying...`)
               retries++
               await locatorToFill.waitFor({ state: 'visible', timeout: 5000 })
             }
           } else {
-            console.log(`Input is not visible or not enabled. Retrying...`)
+            console.log(`❌ Input is not visible or not enabled. Retrying...`)
             retries++
             await locatorToFill.waitFor({ state: 'visible', timeout: 5000 })
           }
@@ -133,7 +172,7 @@ export class PageActions {
         if (retries === maxRetries) {
           const lastValue = await locatorToFill.inputValue()
           throw new Error(
-            `Failed to fill the text input after maximum retries. Last attempted value: ${lastValue}`
+            `❌ Failed to fill the text input after maximum retries. Last attempted value: ${lastValue}`
           )
         }
       }
