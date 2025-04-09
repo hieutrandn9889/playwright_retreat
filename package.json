@@ -1,5 +1,5 @@
 {
-  "name": "playwright-bookretreats",
+  "name": "playwright-phptravels",
   "version": "1.0.0",
   "description": "Playwright Retreats tests",
   "main": "index.js",
@@ -7,10 +7,10 @@
     "kill-processes": "./scripts/kill_processes.sh",
     "kill_npm": "pkill -f 'npm run'",
     "setup": "npm i && npm i -g ts-node && npx playwright install --with-deps",
-    "ui:mode:prod": "cross-env test_env=prod npx playwright test --ui --project=bookretreats:e2e",
+    "ui:mode:prod": "cross-env test_env=prod npx playwright test --ui --project=phptravels:e2e",
     "template:prod": "clear && node run-playwright.js chrome template prod",
     "pretify": "npx prettier --write './APIs' './Pages' './TestData' './tests'",
-    "bookretreats:e2e:tests:prod": "clear && node run-playwright.js chrome bookretreats:e2e prod"
+    "phptravels:e2e:tests:prod": "clear && node run-playwright.js chrome phptravels:e2e prod"
   },
   "types": "./global.d.ts",
   "repository": {

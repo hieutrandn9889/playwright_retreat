@@ -11,8 +11,8 @@ export {globTimeout}
 const config: PlaywrightTestConfig = {
   projects: [
     {
-      name: 'bookretreats:e2e',
-      testMatch: ['/tests/bookretreats/e2e/*.spec.ts'],
+      name: 'phptravels:e2e',
+      testMatch: ['/tests/phptravels/e2e/*.spec.ts'],
       testIgnore: []
     }
   ],

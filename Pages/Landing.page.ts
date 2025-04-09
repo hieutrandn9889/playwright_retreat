@@ -1,28 +1,28 @@
 // Documentation https://playwright.dev/docs/api/class-apirequestcontext
 import { Locator, Page } from '@playwright/test'
 import { PageActions } from './PageActions'
+import { step } from '../utils/envName'
+
+interface bookFlightData {
+  firstName: string
+  lastName: string
+  email: string
+  password: string
+}
 
 export class LandingPage extends PageActions {
-
-  menuBtn: Locator
-  signUpBtn: Locator
-
+  readonly baseUrl: string
+  readonly firstNameInput: Locator
+  
   constructor(page: Page) {
     super(page)
-    this.menuBtn = page.locator('//span[text()="Menu"]').first()
-    this.signUpBtn = page.locator('[href="/signup?redirect=/"]')
+    this.baseUrl = process.env.BASE_URL!
+    this.firstNameInput = page.locator('input#first_name').first()
   }
 
-  async openUrl() {
-    await super.openUrl(this.baseUrl)
+  async bookFlight(data: bookFlightData) {
+    await step(`Books a flight`, async () => {
+      await this.openUrl(this.baseUrl)
+    })
   }
-
-  async clickMenuBtn() {
-    await this.clickElement(this.menuBtn)
-  }
-
-  async clickSignUpBtn() {
-    await this.clickElement(this.signUpBtn)
-  }
-
 }
