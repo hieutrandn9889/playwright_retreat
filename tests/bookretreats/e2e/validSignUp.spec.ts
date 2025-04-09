@@ -8,6 +8,7 @@ test.describe('Bookretreats: E2E Tests', () => {
       await pageManager.landingPage.clickMenuBtn()
       await pageManager.landingPage.clickSignUpBtn()
       await pageManager.signUpPage.fillSignUpForm(validSignUpData)
+      await pageManager.signUpPage.solveReCAPTCHA()
     })
   })
-})
+})  

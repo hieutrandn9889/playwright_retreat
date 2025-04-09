@@ -1,5 +1,5 @@
 // Documentation https://playwright.dev/docs/api/class-apirequestcontext
-import { Locator, Page } from '@playwright/test'
+import { Locator, Frame, FrameLocator, Page } from '@playwright/test'
 import { PageActions } from './PageActions'
 import { step } from '../utils/envName'
 
@@ -15,6 +15,7 @@ export class SignUpPage extends PageActions {
   lastNameInput: Locator
   emailInput: Locator
   passwordInput: Locator
+  reCAPTCHAFrame: FrameLocator
 
   constructor(page: Page) {
     super(page)
@@ -22,6 +23,7 @@ export class SignUpPage extends PageActions {
     this.lastNameInput = page.locator('input#last_name').first()
     this.emailInput = page.locator('#singup-form input[name="email"]').first()
     this.passwordInput = page.locator('#singup-form input[name="password"]').first()
+    this.reCAPTCHAFrame = page.frameLocator('iframe[title="reCAPTCHA"]').first()
   }
 
   async fillSignUpForm(data: signUpData) {
