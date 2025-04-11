@@ -9,7 +9,7 @@ test.describe('E2E Tests - Chat App', () => {
   let supportPageManager: PageManager, clientPageManager: PageManager
 
   test.beforeAll(async ({ browser }) => {
-    // Create separate contexts for operator and client
+    // Create separate contexts for support and client
     supportContext = await browser.newContext()
     clientContext = await browser.newContext()
 
@@ -49,7 +49,7 @@ test.describe('E2E Tests - Chat App', () => {
     })
 
     await step(`Client checks Support message`, async () => {
-      await clientPageManager.chatPage.checkMessageInChat(SupportData.message, SupportData.userName)
+      await clientPageManager.chatPage.checkMessageInChat(SupportData.message, `${SupportData.userName}fail`)
     })
   })
 })
