@@ -14,7 +14,7 @@ const config: PlaywrightTestConfig = {
     viewport: null,
     ignoreHTTPSErrors: true,
     launchOptions: {
-      slowMo: 250,
+      slowMo: 1000, // for demo purposes, emulates real user behavior with a bit of delay
       channel: 'chrome',
       args: [
         '--start-maximized',

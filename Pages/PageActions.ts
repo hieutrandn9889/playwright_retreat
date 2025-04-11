@@ -97,7 +97,7 @@ export class PageActions {
 
   async fillElement(locatorToFill: Locator, text: string, maxRetries: number = 10) {
     await step(
-      `${this.uiActionPrefix}Fills element: '${locatorToFill}' with text: '${text}' using native fill`,
+      `${this.uiActionPrefix}Fills element: '${locatorToFill}' with text: '${text}'`,
       async () => {
         let retries = 0
 
@@ -235,20 +235,27 @@ export class PageActions {
     )
   }
 
-  async checkElementText(locator: Locator, text: string) {
+  async checkElementExactText(locator: Locator, text: string) {
     await step(`${this.uiActionPrefix}Checks text from element: '${locator}'`, async () => {
       const textValue = await locator.textContent()
       await expect(textValue).toEqual(text)
     })
   }
 
-  async waitForElementText(
+  async checkElementPartialText(locator: Locator, partialText: string) {
+    await step(`${this.uiActionPrefix}Checks partial text from element: '${locator}'`, async () => {
+      const textValue = await locator.textContent()
+      await expect(textValue).toContain(partialText)
+    })
+  }
+
+  async waitForElementExactText(
     locator: Locator,
     expectedText: string,
     timeout: number = 30000
   ) {
     await step(
-      `${this.uiActionPrefix}Waits for element '${locator}' to have text: '${expectedText}'`,
+      `${this.uiActionPrefix}Waits for element '${locator}' to have exact text: '${expectedText}'`,
       async () => {
         const startTime = Date.now()
 
@@ -265,6 +272,35 @@ export class PageActions {
             )
           }
 
+          await new Promise(resolve => setTimeout(resolve, 1000))
+        }
+      }
+    )
+  }
+
+  async waitForElementPartialText(
+    locator: Locator,
+    expectedPartialText: string,
+    timeout: number = 30000
+  ) {
+    await step(
+      `${this.uiActionPrefix}Waits for element '${locator}' to contain text: '${expectedPartialText}'`,
+      async () => {
+        const startTime = Date.now()
+  
+        while (true) {
+          const textValue = await locator.textContent()
+  
+          if (textValue?.includes(expectedPartialText)) {
+            return
+          }
+  
+          if (Date.now() - startTime > timeout) {
+            throw new Error(
+              `Timeout exceeded while waiting for element '${locator}' to contain text '${expectedPartialText}'. Actual text: '${textValue}'`
+            )
+          }
+  
           await new Promise(resolve => setTimeout(resolve, 1000))
         }
       }
@@ -351,4 +387,5 @@ export class PageActions {
       }
     })
   }
+
 }

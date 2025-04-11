@@ -10,7 +10,7 @@
     "ui:mode:prod": "cross-env test_env=prod npx playwright test --ui --project=phptravels:e2e",
     "template:prod": "clear && node run-playwright.js chrome template prod",
     "pretify": "npx prettier --write './APIs' './Pages' './TestData' './tests'",
-    "phptravels:e2e:tests:prod": "clear && node run-playwright.js chrome phptravels:e2e prod"
+    "chat:e2e:tests:prod": "clear && node run-playwright.js chrome chat:e2e prod"
   },
   "types": "./global.d.ts",
   "repository": {
@@ -20,7 +20,7 @@
   "license": "ISC",
   "dependencies": {
     "@aws-crypto/crc32": "^5.2.0",
-    "@playwright/test": "^1.49.1",
+    "@playwright/test": "^1.51.1",
     "@types/xml2js": "^0.4.14",
     "aws-sdk": "^2.1692.0",
     "chalk": "^4.1.2",
@@ -28,6 +28,6 @@
     "dotenv": "^16.3.1",
     "fs": "^0.0.1-security",
     "path": "^0.12.7",
-    "playwright": "^1.49.1"
+    "playwright": "^1.51.1"
   }
 }

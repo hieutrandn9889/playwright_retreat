@@ -11,8 +11,8 @@ export {globTimeout}
 const config: PlaywrightTestConfig = {
   projects: [
     {
-      name: 'phptravels:e2e',
-      testMatch: ['/tests/phptravels/e2e/*.spec.ts'],
+      name: 'chat:e2e',
+      testMatch: ['/tests/chat/e2e/*.spec.ts'],
       testIgnore: []
     }
   ],
@@ -34,7 +34,7 @@ const config: PlaywrightTestConfig = {
     navigationTimeout: globTimeout,
     screenshot: 'only-on-failure',
     video: {
-      mode: 'retain-on-failure',
+      mode: 'on' //'retain-on-failure'
       // size: {
       //   width: 1920,
       //   height: 1080
