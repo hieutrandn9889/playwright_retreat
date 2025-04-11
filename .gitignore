@@ -7,9 +7,8 @@ html-report
 .vscode
 .env.dev
 .env.stage
-.env.prod
+#.env.prod
 test_users.txt
-Scripts/test_users.txt
 test_logs
 html_report
 html_reports
