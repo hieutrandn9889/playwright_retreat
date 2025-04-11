@@ -10,3 +10,4 @@ To set the foundation for the tests on your local env simply go through the foll
 2. Install [nodejs & npm](https://nodejs.org/en/) 
 3. Run `npm run setup` in the project root folder
 4. To run the Chat App tests run `npm run chat:e2e:tests:prod`
+5. Run `npm run show:report` to open the HTML report
