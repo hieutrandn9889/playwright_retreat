@@ -1,7 +1,10 @@
 - [Setup](#setup)
 - [Documentation](#documentation)
 
-# Setup
+# DEMO VIDEO
+[Demo Video](https://youtu.be/X3sui5j6WBY)
+
+# SETUP
 To set the foundation for the tests on your local env simply go through the following steps:
 1. Clone this repo
 2. Install [nodejs & npm](https://nodejs.org/en/) 
