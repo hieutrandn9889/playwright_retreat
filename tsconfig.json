@@ -10,5 +10,5 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
   },
-  "include": ["**/*.ts", "./**/*.json", "tests/**/**/*.spec.ts"]
+  "include": ["**/*.ts", "./**/*.json", "tests/**/**/*.spec.ts", "utils/generate-html-report.ts"]
 }

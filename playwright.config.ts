@@ -3,7 +3,7 @@ import type { PlaywrightTestConfig } from '@playwright/test'
 const env = process.env.test_env
 let globTimeout: number
 if (env == 'prod') {
-  globTimeout = 1000 * 60 * 2 // 2 minutes
+  globTimeout = 1000 * 60 * 1 // 1 minute
 }
 export { globTimeout }
 
@@ -31,18 +31,17 @@ const config: PlaywrightTestConfig = {
   use: {
     actionTimeout: globTimeout,
     navigationTimeout: globTimeout,
-    screenshot: 'only-on-failure',
     video: {
       mode: 'retain-on-failure',
     },
-    trace: 'retain-on-failure',
     contextOptions: {
       recordVideo: {
-        dir: './test-results/videos',
-      },
-      colorScheme: 'dark',
-      serviceWorkers: 'allow',
+        dir: 'test-results/videos',
+        size: { width: 1280, height: 720 },
+      }
     },
+    screenshot: 'only-on-failure',
+    trace: 'retain-on-failure',
   },
 }
 
