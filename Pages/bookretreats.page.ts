@@ -52,6 +52,15 @@ export class BookRetreatsPage extends PageActions {
     })
   }
 
+  async generateGptPrompt(objectNameToSearch: string): Promise<string> {
+    return `Count the amount of images on this picture.
+    Store the amount of images in a numbered array, e.g. [1,2,3,4,5,6,7...(depending on the image quantity)].
+    Then, detect which of the images contain "${objectNameToSearch}".
+    If there's any images containing "${objectNameToSearch}" - return me a numbered array containing the id's of images, which contain "${objectNameToSearch}".
+    Return ONLY the array, NOTHING ELSE.
+    If there are no images containing "${objectNameToSearch}" - return the EXACT RESPONSE: "no images found".`
+  }
+
   async solveRecaptcha() {
     await test.step('solves reCAPTCHA', async () => {
       await this.recaptchaCheckbox.click()
@@ -66,12 +75,36 @@ export class BookRetreatsPage extends PageActions {
         console.log(`ReCAPTCHA Object To Search: ${objectNameToSearch}`)
 
         console.log('Taking screenshot of reCAPTCHA challenge...')
-        await this.recaptchaChallengeContainer.screenshot({ path: '../TestData/screenshots/dynamic/recaptcha_challenge.png' })
-        /* ...add logic to solve the challenge 
-        - send it via DeepSeek API
-        - store answer in form of array of numbers in a variable
-        - click on the image containers with numbers from the array
-        */
+        await this.recaptchaChallengeContainer.screenshot({ path: 'recaptcha_challenge.png' })
+
+        console.log('Sending reCAPTCHA challenge to ChatGPT...')
+        const gptPrompt = await this.generateGptPrompt(objectNameToSearch)
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
+          },
+          body: JSON.stringify({
+            model: 'gpt-4o',
+            messages: [
+              { role: 'user', content: gptPrompt }
+            ]
+          })
+        })
+        
+        const data = await response.json()
+        let imageIds: number[] = []
+
+        try {
+          imageIds = JSON.parse(data.choices[0].message.content)
+          console.log(`Image IDs to click: ${imageIds}`)
+        } catch (error) {
+          console.error('Failed to parse image IDs:', error)
+        }
+
+        // ...add logic to solve the challenge 
+        // - click on the image containers with numbers from the array
       } else {
         console.log('ReCAPTCHA challenge was not shown.')
       }
