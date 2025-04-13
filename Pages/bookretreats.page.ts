@@ -22,6 +22,7 @@ export class BookRetreatsPage extends PageActions {
   readonly recaptchaCheckbox: Locator
   readonly recaptchaCheckboxChechmark: Locator
   readonly recaptchaChallengeIframe: FrameLocator
+  readonly recaptchaChallengeContainer: Locator
   readonly recaptchaObjectNameContainer: Locator
   readonly createAccountButton: Locator
 
@@ -36,6 +37,7 @@ export class BookRetreatsPage extends PageActions {
     this.recaptchaCheckbox = this.recaptchaIframe.locator('.recaptcha-checkbox-unchecked')
     this.recaptchaChallengeIframe = page.frameLocator('[style*="width"] iframe[title="recaptcha challenge expires in two minutes"]')
     this.recaptchaObjectNameContainer = this.recaptchaChallengeIframe.locator('.rc-imageselect-desc-no-canonical strong')
+    this.recaptchaChallengeContainer = this.recaptchaChallengeIframe.locator('.rc-imageselect-challenge')
     this.recaptchaCheckboxChechmark = this.recaptchaIframe.locator('.recaptcha-checkbox-checkmark')
     this.createAccountButton = this.form.locator('[class*="validSubmit"]')
   }
@@ -61,10 +63,12 @@ export class BookRetreatsPage extends PageActions {
         console.log('ReCAPTCHA challenge shown, solving...')
         const objectName = await this.recaptchaObjectNameContainer.textContent()
         const objectNameToSearch = objectName?.trim()
-        console.log(`ReCAPTCHA Object Name To Search: ${objectNameToSearch}`)
+        console.log(`ReCAPTCHA Object To Search: ${objectNameToSearch}`)
+
+        console.log('Taking screenshot of reCAPTCHA challenge...')
+        await this.recaptchaChallengeContainer.screenshot({ path: '../TestData/screenshots/dynamic/recaptcha_challenge.png' })
         /* ...add logic to solve the challenge 
-        - take a screenshot of the challenge frame, 
-        - send it via DeepSeek API, 
+        - send it via DeepSeek API
         - store answer in form of array of numbers in a variable
         - click on the image containers with numbers from the array
         */
