@@ -14,6 +14,11 @@ const config: PlaywrightTestConfig = {
       testMatch: ['/tests/chat/e2e/*.spec.ts'],
       testIgnore: [],
     },
+    {
+      name: 'softserve:bullies',
+      testMatch: ['/tests/softserve/e2e/*.spec.ts'],
+      testIgnore: [],
+    },
   ],
   timeout: globTimeout,
   expect: {
