@@ -53,10 +53,24 @@ export class BookRetreatsPage extends PageActions {
   async solveRecaptcha() {
     await test.step('solves reCAPTCHA', async () => {
       await this.recaptchaCheckbox.click()
-      const objectName = await this.recaptchaObjectNameContainer.textContent()
-      const objectNameToSearch = objectName?.trim()
-      console.log(`ReCAPTCHA Object Name To Search: ${objectNameToSearch}`)
-      //await this.recaptchaCheckboxChechmark.waitFor({ state: 'visible' })
+
+      const challengeVisible = await this.recaptchaChallengeIframe.locator('body').isVisible({ timeout: 5000 }).catch(() => false)
+      console.log(`ReCAPTCHA challenge visible: ${challengeVisible}`)
+
+      if (challengeVisible === true) {
+        console.log('ReCAPTCHA challenge shown, solving...')
+        const objectName = await this.recaptchaObjectNameContainer.textContent()
+        const objectNameToSearch = objectName?.trim()
+        console.log(`ReCAPTCHA Object Name To Search: ${objectNameToSearch}`)
+        /* ...add logic to solve the challenge 
+        - take a screenshot of the challenge frame, 
+        - send it via DeepSeek API, 
+        - store answer in form of array of numbers in a variable
+        - click on the image containers with numbers from the array
+        */
+      } else {
+        console.log('ReCAPTCHA challenge was not shown.')
+      }
     })
   }
 
