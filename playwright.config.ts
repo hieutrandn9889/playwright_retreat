@@ -19,6 +19,11 @@ const config: PlaywrightTestConfig = {
       testMatch: ['/tests/softserve/e2e/*.spec.ts'],
       testIgnore: [],
     },
+    {
+      name: 'bookretreats:e2e',
+      testMatch: ['/tests/bookretreats/e2e/*.spec.ts'],
+      testIgnore: [],
+    },
   ],
   timeout: globTimeout,
   expect: {

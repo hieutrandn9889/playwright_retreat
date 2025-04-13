@@ -2,6 +2,7 @@ import { Page } from '@playwright/test'
 import { PageActions } from '../Pages/PageActions'
 import { ChatPage } from '../Pages/chat.page'
 import { SoftServePage } from '../Pages/softserve.page'
+import { BookRetreatsPage } from '../Pages/bookretreats.page'
 
 export class PageManager {
   page: Page
@@ -16,5 +17,8 @@ export class PageManager {
   }
   get softservePage(): SoftServePage {
     return new SoftServePage(this.page)
+  }
+  get bookretreatsPage(): BookRetreatsPage {
+    return new BookRetreatsPage(this.page)
   }
 }
