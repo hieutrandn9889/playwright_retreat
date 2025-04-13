@@ -1,6 +1,7 @@
 import { Page } from '@playwright/test'
 import { PageActions } from '../Pages/PageActions'
 import { ChatPage } from '../Pages/chat.page'
+import { SoftServePage } from '../Pages/softserve.page'
 
 export class PageManager {
   page: Page
@@ -12,5 +13,8 @@ export class PageManager {
   }
   get chatPage(): ChatPage {
     return new ChatPage(this.page)
+  }
+  get softservePage(): SoftServePage {
+    return new SoftServePage(this.page)
   }
 }

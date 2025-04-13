@@ -12,6 +12,7 @@
     "template:prod": "clear && node run-playwright.js chrome template prod",
     "pretify": "npx prettier --write './APIs' './Pages' './TestData' './tests'",
     "chat:e2e:tests:prod": "clear && node run-playwright.js chrome chat:e2e prod",
+    "softserve:bullies:tests:prod": "clear && node run-playwright.js chrome softserve:bullies prod",
     "show:report": "npx playwright show-report html_report"
   },
   "types": "./global.d.ts",
