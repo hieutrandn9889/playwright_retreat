@@ -2,8 +2,6 @@ name: Tests
 run-name: 🧪 Tests
 
 on:
-  # schedule:
-   # - cron: '0 8 * * 1,3,5' # PROD will run on weekdays at 10:00 (Kiev TZ) / 06:00 EST
   push:
     branches:
       - template
@@ -29,6 +27,7 @@ on:
 
 # variables https://github.com/cleanchoice/playwright_retreat/settings/variables/actions
 env:
+  ALL_TESTS_PROD:         ${{vars.ALL_TESTS_PROD}}
   CHAT_E2E_PROD:          ${{vars.CHAT_E2E_PROD}}
   SOFTSERVE_E2E_PROD:     ${{vars.SOFTSERVE_E2E_PROD}}
   BOOKRETREATS_E2E_PROD:  ${{vars.BOOKRETREATS_E2E_PROD}}
@@ -44,6 +43,11 @@ jobs:
   e2e_tests:
     name: ⚙️ E2E tests PROD
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        suite: [CHAT_E2E_PROD, SOFTSERVE_E2E_PROD, BOOKRETREATS_E2E_PROD]
+      fail-fast: false
+    if: ${{ inputs.test_suite == 'ALL' || inputs.test_suite == matrix.suite }}
     steps:
     - name: 🔎 List all environment variables
       run: env | sort
@@ -66,16 +70,16 @@ jobs:
       run: echo "${{secrets.CONFIG_PROD}}" > .env.prod
 
     - name: ⚙️ Run E2E tests
-      run: xvfb-run npm run $TEST_SUITE
+      run: xvfb-run npm run ${{ matrix.suite }}
 
     - name: 📊 Prepare HTML Report Directory
       if: always()
       run: |
-        echo "Removing existing e2e_tests_prod directory if it exists..."
-        rm -rf $GITHUB_WORKSPACE/e2e_tests_prod
+        echo "Removing existing ${{ matrix.suite }} directory if it exists..."
+        rm -rf $GITHUB_WORKSPACE/${{ matrix.suite }}
         
-        echo "Creating e2e_tests_prod directory..."
-        mkdir -p $GITHUB_WORKSPACE/e2e_tests_prod
+        echo "Creating ${{ matrix.suite }} directory..."
+        mkdir -p $GITHUB_WORKSPACE/${{ matrix.suite }}
         
         echo "Current working directory:"
         pwd
@@ -83,8 +87,8 @@ jobs:
         echo "Contents of the current working directory:"
         ls -la
         
-        echo "Attempting to copy html-report to e2e_tests_prod directory"
-        cp -r $GITHUB_WORKSPACE/html-report/* $GITHUB_WORKSPACE/e2e_tests_prod/
+        echo "Attempting to copy html-report to ${{ matrix.suite }} directory"
+        cp -r $GITHUB_WORKSPACE/html-report/* $GITHUB_WORKSPACE/${{ matrix.suite }}/
       shell: bash
     
     - name: 📊 Deploy HTML Report
@@ -92,20 +96,20 @@ jobs:
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: e2e_tests_prod
-        destination_dir: e2e_tests_prod
+        publish_dir: ${{ matrix.suite }}
+        destination_dir: ${{ matrix.suite }}
 
     - name: Notify Slack about success
       if: success()
       run: |
-        curl -X POST -H 'Content-type: application/json' --data "{\"channel\":\"$SLACK_CHANNEL\",\"username\":\"Github\",\"attachments\":[{\"color\":\"#2EB67D\",\"text\":\":test_tube: :white_check_mark: Test suite *$TEST_SUITE* has succeeded, :book: <$CI_PIPELINE_URL|VIEW LOGS>, :bar_chart: <$REPORT_URL|VIEW REPORT>\",\"footer\":\"Time: $(TZ=$TZ date)\"}]}" $SLACK_WEBHOOK
+        curl -X POST -H 'Content-type: application/json' --data "{\"channel\":\"$SLACK_CHANNEL\",\"username\":\"Github\",\"attachments\":[{\"color\":\"#2EB67D\",\"text\":\":test_tube: :white_check_mark: Test suite *${{ matrix.suite }}* has succeeded, :book: <${{ env.CI_PIPELINE_URL }}|VIEW LOGS>, :bar_chart: <${{ env.REPORT_URL }}|VIEW REPORT>\",\"footer\":\"Time: $(TZ=$TZ date)\"}]}" $SLACK_WEBHOOK
 
     - name: Notify Slack about failure
       if: failure()
       run: |
-        curl -X POST -H 'Content-type: application/json' --data "{\"channel\":\"$SLACK_CHANNEL\",\"username\":\"Github\",\"attachments\":[{\"color\":\"#E01E5A\",\"text\":\":test_tube: :x: Test suite *$TEST_SUITE* has failed, :book: <$CI_PIPELINE_URL|VIEW LOGS>, :bar_chart: <$REPORT_URL|VIEW REPORT>, <$SLACK_USER>\",\"footer\":\"Time: $(TZ=$TZ date)\"}]}" $SLACK_WEBHOOK
+        curl -X POST -H 'Content-type: application/json' --data "{\"channel\":\"$SLACK_CHANNEL\",\"username\":\"Github\",\"attachments\":[{\"color\":\"#E01E5A\",\"text\":\":test_tube: :x: Test suite *${{ matrix.suite }}* has failed, :book: <${{ env.CI_PIPELINE_URL }}|VIEW LOGS>, :bar_chart: <${{ env.REPORT_URL }}|VIEW REPORT>, <${{ env.SLACK_USER }}>\",\"footer\":\"Time: $(TZ=$TZ date)\"}]}" $SLACK_WEBHOOK
 
     - name: Notify Slack about cancellation
       if: cancelled()
       run: |
-        curl -X POST -H 'Content-type: application/json' --data "{\"channel\":\"$SLACK_CHANNEL\",\"username\":\"Github\",\"attachments\":[{\"color\":\"#808080\",\"text\":\":test_tube: :black_square_for_stop: Test suite *$TEST_SUITE* was cancelled, :book: <$CI_PIPELINE_URL|VIEW LOGS>, :bar_chart: <$REPORT_URL|VIEW REPORT>, <$SLACK_USER>\",\"footer\":\"Time: $(TZ=$TZ date)\"}]}" $SLACK_WEBHOOK
+        curl -X POST -H 'Content-type: application/json' --data "{\"channel\":\"$SLACK_CHANNEL\",\"username\":\"Github\",\"attachments\":[{\"color\":\"#808080\",\"text\":\":test_tube: :black_square_for_stop: Test suite *${{ matrix.suite }}* was cancelled, :book: <${{ env.CI_PIPELINE_URL }}|VIEW LOGS>, :bar_chart: <${{ env.REPORT_URL }}|VIEW REPORT>, <${{ env.SLACK_USER }}>\",\"footer\":\"Time: $(TZ=$TZ date)\"}]}" $SLACK_WEBHOOK
