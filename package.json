@@ -14,6 +14,7 @@
     "chat:e2e:tests:prod": "clear && node run-playwright.js chrome chat:e2e prod",
     "softserve:bullies:tests:prod": "clear && node run-playwright.js chrome softserve:bullies prod",
     "bookretreats:e2e:tests:prod": "clear && node run-playwright.js chrome bookretreats:e2e prod",
+    "all:tests:prod": "clear && node run-playwright.js chrome all prod",
     "show:report": "npx playwright show-report html_report"
   },
   "types": "./global.d.ts",

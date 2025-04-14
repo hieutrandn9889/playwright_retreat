@@ -10,6 +10,11 @@ export { globTimeout }
 const config: PlaywrightTestConfig = {
   projects: [
     {
+      name: 'all',
+      testMatch: ['/tests/**/**/*.spec.ts'],
+      testIgnore: [],
+    },
+    {
       name: 'chat:e2e',
       testMatch: ['/tests/chat/e2e/*.spec.ts'],
       testIgnore: [],
