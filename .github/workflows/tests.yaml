@@ -89,7 +89,7 @@ jobs:
 
       - name: ⚙️ Run E2E tests
         if: ${{ inputs.test_suite == 'ALL' || inputs.test_suite == matrix.suite }}
-        run: xvfb-run npm run ${{ matrix.suite }}
+        run: xvfb-run npm run ${{ env[matrix.suite] }}
 
       - name: 📊 Prepare HTML Report Directory
         if: always()
