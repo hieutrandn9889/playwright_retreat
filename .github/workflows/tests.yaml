@@ -20,24 +20,24 @@ on:
         default: 'ALL'
         type: choice
         options:
-          - CHAT_E2E_PROD
-          - SOFTSERVE_E2E_PROD
-          - BOOKRETREATS_E2E_PROD
+          - CHAT_E2E_TESTS_PROD
+          - SOFTSERVE_BULLIES_TESTS_PROD
+          - BOOKRETREATS_E2E_TESTS_PROD
           - ALL
 
-# variables https://github.com/cleanchoice/playwright_retreat/settings/variables/actions
+# variables https://github.com/alexzavg/playwright_retreat/settings/variables/actions
 env:
-  ALL_TESTS_PROD:         ${{vars.ALL_TESTS_PROD}}
-  CHAT_E2E_PROD:          ${{vars.CHAT_E2E_PROD}}
-  SOFTSERVE_E2E_PROD:     ${{vars.SOFTSERVE_E2E_PROD}}
-  BOOKRETREATS_E2E_PROD:  ${{vars.BOOKRETREATS_E2E_PROD}}
-  SLACK_CHANNEL:          ${{vars.SLACK_CHANNEL}}
-  SLACK_WEBHOOK:          ${{vars.SLACK_WEBHOOK}}
-  SLACK_USER:             ${{vars.SLACK_USER}}
-  CI_PIPELINE_URL:        "https://github.com/cleanchoice/playwright_retreat/actions/runs/${{github.run_id}}"
-  REPORT_URL:             ${{vars.HTML_REPORT_E2E_TESTS_PROD}}
-  TZ:                     ${{vars.TZ}}
-  NODE_VERSION:           22.x
+  ALL_TESTS_PROD:               ${{vars.ALL_TESTS_PROD}}
+  CHAT_E2E_TESTS_PROD:          ${{vars.CHAT_E2E_TESTS_PROD}}
+  SOFTSERVE_BULLIES_TESTS_PROD: ${{vars.SOFTSERVE_BULLIES_TESTS_PROD}}
+  BOOKRETREATS_E2E_TESTS_PROD:  ${{vars.BOOKRETREATS_E2E_TESTS_PROD}}
+  SLACK_CHANNEL:                ${{vars.SLACK_CHANNEL}}
+  SLACK_WEBHOOK:                ${{vars.SLACK_WEBHOOK}}
+  SLACK_USER:                   ${{vars.SLACK_USER}}
+  CI_PIPELINE_URL:              "https://github.com/alexzavg/playwright_retreat/actions/runs/${{github.run_id}}"
+  REPORT_URL:                   ${{vars.HTML_REPORT_E2E_TESTS_PROD}}
+  TZ:                           ${{vars.TZ}}
+  NODE_VERSION:                 22.x
 
 jobs:
   e2e_tests:
@@ -45,7 +45,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        suite: [CHAT_E2E_PROD, SOFTSERVE_E2E_PROD, BOOKRETREATS_E2E_PROD]
+        suite: [CHAT_E2E_TESTS_PROD, SOFTSERVE_BULLIES_TESTS_PROD, BOOKRETREATS_E2E_TESTS_PROD]
       fail-fast: false
     steps:
     - name: 🔎 List all environment variables
@@ -90,7 +90,7 @@ jobs:
         echo "Attempting to copy html-report to ${{ matrix.suite }} directory"
         cp -r $GITHUB_WORKSPACE/html-report/* $GITHUB_WORKSPACE/${{ matrix.suite }}/
       shell: bash
-    
+
     - name: 📊 Deploy HTML Report
       if: always()
       uses: peaceiris/actions-gh-pages@v3
