@@ -47,7 +47,6 @@ jobs:
       matrix:
         suite: [CHAT_E2E_PROD, SOFTSERVE_E2E_PROD, BOOKRETREATS_E2E_PROD]
       fail-fast: false
-    if: ${{ inputs.test_suite == 'ALL' || inputs.test_suite == matrix.suite }}
     steps:
     - name: 🔎 List all environment variables
       run: env | sort
@@ -70,6 +69,7 @@ jobs:
       run: echo "${{secrets.CONFIG_PROD}}" > .env.prod
 
     - name: ⚙️ Run E2E tests
+      if: ${{ inputs.test_suite == 'ALL' || inputs.test_suite == matrix.suite }}
       run: xvfb-run npm run ${{ matrix.suite }}
 
     - name: 📊 Prepare HTML Report Directory
