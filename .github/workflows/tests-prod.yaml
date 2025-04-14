@@ -77,7 +77,11 @@ jobs:
           mkdir -p $GITHUB_WORKSPACE/${{ matrix.suite }}
           
           echo "Attempting to copy html-report to ${{ matrix.suite }} directory"
-          cp -r $GITHUB_WORKSPACE/html-report/* $GITHUB_WORKSPACE/${{ matrix.suite }}/
+          if [ -d "$GITHUB_WORKSPACE/html-report" ]; then
+            cp -r $GITHUB_WORKSPACE/html-report/* $GITHUB_WORKSPACE/${{ matrix.suite }}/
+          else
+            echo "No html-report directory found."
+          fi
         shell: bash
 
       - name: 📊 Deploy HTML Report
