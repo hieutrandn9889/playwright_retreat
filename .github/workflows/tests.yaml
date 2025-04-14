@@ -25,7 +25,6 @@ on:
           - BOOKRETREATS_E2E_TESTS_PROD
           - ALL
 
-# variables https://github.com/alexzavg/playwright_retreat/settings/variables/actions
 env:
   ALL_TESTS_PROD:               ${{vars.ALL_TESTS_PROD}}
   CHAT_E2E_TESTS_PROD:          ${{vars.CHAT_E2E_TESTS_PROD}}
@@ -40,76 +39,87 @@ env:
   NODE_VERSION:                 22.x
 
 jobs:
-  e2e_tests:
-    name: ⚙️ E2E tests PROD
+  setup_env:
     runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: 📗 Use node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: 🔽 Install dependencies
+        run: |
+          npm install
+          npm install -g ts-node
+          npx playwright install chrome
+
+      - name: Cache Node modules
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+  e2e_tests:
+    runs-on: ubuntu-latest
+    needs: setup_env
     strategy:
       matrix:
         suite: [CHAT_E2E_TESTS_PROD, SOFTSERVE_BULLIES_TESTS_PROD, BOOKRETREATS_E2E_TESTS_PROD]
       fail-fast: false
     steps:
-    - name: 🔎 List all environment variables
-      run: env | sort
+      - name: Checkout
+        uses: actions/checkout@v4
 
-    - name: Checkout
-      uses: actions/checkout@v4
+      - name: Restore Node modules cache
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
 
-    - name: 📗 Use node.js ${{ env.NODE_VERSION }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ env.NODE_VERSION }}
+      - name: 📝 Create .env file
+        run: echo "${{secrets.CONFIG_PROD}}" > .env.prod
 
-    - name: 🔽 Install dependencies
-      run: |
-        npm install
-        npm install -g ts-node
-        npx playwright install chrome
+      - name: ⚙️ Run E2E tests
+        if: ${{ inputs.test_suite == 'ALL' || inputs.test_suite == matrix.suite }}
+        run: xvfb-run npm run ${{ matrix.suite }}
 
-    - name: 📝 Create .env file
-      run: echo "${{secrets.CONFIG_PROD}}" > .env.prod
+      - name: 📊 Prepare HTML Report Directory
+        if: always()
+        run: |
+          echo "Removing existing ${{ matrix.suite }} directory if it exists..."
+          rm -rf $GITHUB_WORKSPACE/${{ matrix.suite }}
+          
+          echo "Creating ${{ matrix.suite }} directory..."
+          mkdir -p $GITHUB_WORKSPACE/${{ matrix.suite }}
+          
+          echo "Attempting to copy html-report to ${{ matrix.suite }} directory"
+          cp -r $GITHUB_WORKSPACE/html-report/* $GITHUB_WORKSPACE/${{ matrix.suite }}/
+        shell: bash
 
-    - name: ⚙️ Run E2E tests
-      if: ${{ inputs.test_suite == 'ALL' || inputs.test_suite == matrix.suite }}
-      run: xvfb-run npm run ${{ matrix.suite }}
+      - name: 📊 Deploy HTML Report
+        if: always()
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ${{ matrix.suite }}
+          destination_dir: ${{ matrix.suite }}
 
-    - name: 📊 Prepare HTML Report Directory
-      if: always()
-      run: |
-        echo "Removing existing ${{ matrix.suite }} directory if it exists..."
-        rm -rf $GITHUB_WORKSPACE/${{ matrix.suite }}
-        
-        echo "Creating ${{ matrix.suite }} directory..."
-        mkdir -p $GITHUB_WORKSPACE/${{ matrix.suite }}
-        
-        echo "Current working directory:"
-        pwd
-        
-        echo "Contents of the current working directory:"
-        ls -la
-        
-        echo "Attempting to copy html-report to ${{ matrix.suite }} directory"
-        cp -r $GITHUB_WORKSPACE/html-report/* $GITHUB_WORKSPACE/${{ matrix.suite }}/
-      shell: bash
+      - name: Notify Slack about success
+        if: success()
+        run: |
+          curl -X POST -H 'Content-type: application/json' --data "{\"channel\":\"$SLACK_CHANNEL\",\"username\":\"Github\",\"attachments\":[{\"color\":\"#2EB67D\",\"text\":\":test_tube: :white_check_mark: Test suite *${{ matrix.suite }}* has succeeded, :book: <${{ env.CI_PIPELINE_URL }}|VIEW LOGS>, :bar_chart: <${{ env.REPORT_URL }}|VIEW REPORT>\",\"footer\":\"Time: $(TZ=$TZ date)\"}]}" $SLACK_WEBHOOK
 
-    - name: 📊 Deploy HTML Report
-      if: always()
-      uses: peaceiris/actions-gh-pages@v3
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ${{ matrix.suite }}
-        destination_dir: ${{ matrix.suite }}
+      - name: Notify Slack about failure
+        if: failure()
+        run: |
+          curl -X POST -H 'Content-type: application/json' --data "{\"channel\":\"$SLACK_CHANNEL\",\"username\":\"Github\",\"attachments\":[{\"color\":\"#E01E5A\",\"text\":\":test_tube: :x: Test suite *${{ matrix.suite }}* has failed, :book: <${{ env.CI_PIPELINE_URL }}|VIEW LOGS>, :bar_chart: <${{ env.REPORT_URL }}|VIEW REPORT>, <${{ env.SLACK_USER }}>\",\"footer\":\"Time: $(TZ=$TZ date)\"}]}" $SLACK_WEBHOOK
 
-    - name: Notify Slack about success
-      if: success()
-      run: |
-        curl -X POST -H 'Content-type: application/json' --data "{\"channel\":\"$SLACK_CHANNEL\",\"username\":\"Github\",\"attachments\":[{\"color\":\"#2EB67D\",\"text\":\":test_tube: :white_check_mark: Test suite *${{ matrix.suite }}* has succeeded, :book: <${{ env.CI_PIPELINE_URL }}|VIEW LOGS>, :bar_chart: <${{ env.REPORT_URL }}|VIEW REPORT>\",\"footer\":\"Time: $(TZ=$TZ date)\"}]}" $SLACK_WEBHOOK
-
-    - name: Notify Slack about failure
-      if: failure()
-      run: |
-        curl -X POST -H 'Content-type: application/json' --data "{\"channel\":\"$SLACK_CHANNEL\",\"username\":\"Github\",\"attachments\":[{\"color\":\"#E01E5A\",\"text\":\":test_tube: :x: Test suite *${{ matrix.suite }}* has failed, :book: <${{ env.CI_PIPELINE_URL }}|VIEW LOGS>, :bar_chart: <${{ env.REPORT_URL }}|VIEW REPORT>, <${{ env.SLACK_USER }}>\",\"footer\":\"Time: $(TZ=$TZ date)\"}]}" $SLACK_WEBHOOK
-
-    - name: Notify Slack about cancellation
-      if: cancelled()
-      run: |
-        curl -X POST -H 'Content-type: application/json' --data "{\"channel\":\"$SLACK_CHANNEL\",\"username\":\"Github\",\"attachments\":[{\"color\":\"#808080\",\"text\":\":test_tube: :black_square_for_stop: Test suite *${{ matrix.suite }}* was cancelled, :book: <${{ env.CI_PIPELINE_URL }}|VIEW LOGS>, :bar_chart: <${{ env.REPORT_URL }}|VIEW REPORT>, <${{ env.SLACK_USER }}>\",\"footer\":\"Time: $(TZ=$TZ date)\"}]}" $SLACK_WEBHOOK
+      - name: Notify Slack about cancellation
+        if: cancelled()
+        run: |
+          curl -X POST -H 'Content-type: application/json' --data "{\"channel\":\"$SLACK_CHANNEL\",\"username\":\"Github\",\"attachments\":[{\"color\":\"#808080\",\"text\":\":test_tube: :black_square_for_stop: Test suite *${{ matrix.suite }}* was cancelled, :book: <${{ env.CI_PIPELINE_URL }}|VIEW LOGS>, :bar_chart: <${{ env.REPORT_URL }}|VIEW REPORT>, <${{ env.SLACK_USER }}>\",\"footer\":\"Time: $(TZ=$TZ date)\"}]}" $SLACK_WEBHOOK
