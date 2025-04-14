@@ -4,15 +4,17 @@
   "description": "Playwright Retreats tests",
   "main": "index.js",
   "scripts": {
+    "setup": "npm i && npm i -g ts-node && npx playwright install --with-deps",
     "kill:processes": "./scripts/kill_processes.sh",
     "kill:ports": "./scripts/kill_ports.sh",
     "kill:npm": "pkill -f 'npm run'",
-    "setup": "npm i && npm i -g ts-node && npx playwright install --with-deps",
     "ui:mode:prod": "cross-env test_env=prod npx playwright test --ui --project=phptravels:e2e",
     "template:prod": "clear && node run-playwright.js chrome template prod",
     "pretify": "npx prettier --write './APIs' './Pages' './TestData' './tests'",
     "chat:e2e:tests:prod": "clear && node run-playwright.js chrome chat:e2e prod",
     "softserve:bullies:tests:prod": "clear && node run-playwright.js chrome softserve:bullies prod",
+    "bookretreats:e2e:tests:prod": "clear && node run-playwright.js chrome bookretreats:e2e prod",
+    "all:tests:prod": "clear && node run-playwright.js chrome all prod",
     "show:report": "npx playwright show-report html_report"
   },
   "types": "./global.d.ts",

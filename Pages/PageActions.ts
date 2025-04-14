@@ -111,7 +111,7 @@ export class PageActions {
             const value = await locatorToFill.inputValue()
 
             if (value === text) {
-              console.log(`✅ Input value is: ${value}, good.`)
+              console.log(`✅ Input value is: ${value}`)
               break
             } else {
               console.log(`❌ Input value is: ${value}, retrying...`)
@@ -155,7 +155,7 @@ export class PageActions {
             const value = await locatorToFill.inputValue()
 
             if (value === text) {
-              console.log(`✅ Input value is: ${value}, good.`)
+              console.log(`✅ Input value is: ${value}`)
               break
             } else {
               console.log(`❌ Input value is: ${value}, retrying...`)

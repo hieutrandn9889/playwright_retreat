@@ -3,7 +3,6 @@ run-name: 🧪 Tests
 
 on:
   # schedule:
-   # - cron: '0 7 * * 1,3,5' # STAGE will run on weekdays at 09:00 (Kiev TZ) / 05:00 EST
    # - cron: '0 8 * * 1,3,5' # PROD will run on weekdays at 10:00 (Kiev TZ) / 06:00 EST
   push:
     branches:
@@ -13,38 +12,38 @@ on:
       environment:
         description: 'Environment to run the tests against'
         required: true
-        default: 'STAGE'
+        default: 'prod'
         type: choice
         options:
-          - STAGE
-          - PROD
+          - prod
       test_suite:
         description: 'Test suite(s) to run'
         required: true
         default: 'ALL'
         type: choice
         options:
-          - INTEGRATION
-          - E2E
-          - ALL
+          - chat
+          - softserve
+          - bookretreats
+          - all
 
-# variables https://github.com/cleanchoice/martech-playwright-template/settings/variables/actions
+# variables https://github.com/cleanchoice/playwright_retreat/settings/variables/actions
 env:
-  INTEGRATION_STAGE:      ${{vars.INTEGRATION_TESTS_STAGE}}
-  INTEGRATION_PROD:       ${{vars.INTEGRATION_TESTS_PROD}}
-  E2E_PROD:               ${{vars.E2E_TESTS_PROD}}
+  CHAT_E2E_PROD:          ${{vars.CHAT_E2E_PROD}}
+  SOFTSERVE_E2E_PROD:     ${{vars.SOFTSERVE_E2E_PROD}}
+  BOOKRETREATS_E2E_PROD:  ${{vars.BOOKRETREATS_E2E_PROD}}
   SLACK_CHANNEL:          ${{vars.SLACK_CHANNEL}}
   SLACK_WEBHOOK:          ${{vars.SLACK_WEBHOOK}}
   SLACK_USER:             ${{vars.SLACK_USER}}
-  CI_PIPELINE_URL:        "https://github.com/cleanchoice/martech-playwright-template/actions/runs/${{github.run_id}}"
+  CI_PIPELINE_URL:        "https://github.com/cleanchoice/playwright_retreat/actions/runs/${{github.run_id}}"
   TZ:                     ${{vars.TZ}}
   NODE_VERSION:           22.x
 
 jobs:
-  run_stage_tests:
-    name: ⚙️ Run STAGE Tests
+  run_prod_tests:
+    name: ⚙️ Run PROD Tests
     runs-on: ubuntu-latest
-    if: github.event.schedule == '0 7 * * 1,3,5' || github.event.inputs.environment == 'STAGE'
+    if: github.event.schedule == '0 8 * * 1,3,5' || github.event.inputs.environment == 'prod'
     steps:
     - name: 🔎 List all environment variables
       run: env | sort
@@ -70,10 +69,10 @@ jobs:
       if: steps.install_deps.outcome == 'success' && (github.event_name == 'schedule' || github.event.inputs.test_suite == 'INTEGRATION' || github.event.inputs.test_suite == 'ALL')
       run: xvfb-run npm run $INTEGRATION_STAGE
 
-  run_prod_tests:
+    run_prod_tests:
     name: ⚙️ Run PROD Tests
     runs-on: ubuntu-latest
-    if: github.event.schedule == '0 8 * * 1,3,5' || github.event.inputs.environment == 'PROD'
+    if: github.event.schedule == '0 8 * * 1,3,5' || github.event.inputs.environment == 'prod'
     steps:
     - name: 🔎 List all environment variables
       run: env | sort
@@ -102,22 +101,6 @@ jobs:
     - name: ⚙️ Run e2e tests
       if: steps.install_deps.outcome == 'success' && (github.event_name == 'schedule' || github.event.inputs.test_suite == 'E2E' || github.event.inputs.test_suite == 'ALL')
       run: xvfb-run npm run $E2E_PROD
-
-  notify_slack_stage:
-    name: 🚦 Notify Slack STAGE
-    runs-on: ubuntu-latest
-    needs: [run_stage_tests]
-    if: always()
-    steps:
-    - name: Notify Slack about success
-      if: needs.run_stage_tests.result == 'success'
-      run: |
-        curl -X POST -H 'Content-type: application/json' --data "{\"channel\":\"$SLACK_CHANNEL\",\"username\":\"Github\",\"attachments\":[{\"color\":\"#2EB67D\",\"text\":\":test_tube: :white_check_mark: Pod B STAGE tests have succeeded, <$CI_PIPELINE_URL|view logs>\",\"footer\":\"Time: $(TZ=$TZ date)\"}]}" $SLACK_WEBHOOK
-
-    - name: Notify Slack about failure
-      if: needs.run_stage_tests.result == 'failure'
-      run: |
-        curl -X POST -H 'Content-type: application/json' --data "{\"channel\":\"$SLACK_CHANNEL\",\"username\":\"Github\",\"attachments\":[{\"color\":\"#E01E5A\",\"text\":\":test_tube: :x: Pod B STAGE tests have failed, <$CI_PIPELINE_URL|view logs>, <$SLACK_USER>\",\"footer\":\"Time: $(TZ=$TZ date)\"}]}" $SLACK_WEBHOOK
 
   notify_slack_prod:
     name: 🚦 Notify Slack PROD

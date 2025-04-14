@@ -10,6 +10,11 @@ export { globTimeout }
 const config: PlaywrightTestConfig = {
   projects: [
     {
+      name: 'all',
+      testMatch: ['/tests/**/**/*.spec.ts'],
+      testIgnore: [],
+    },
+    {
       name: 'chat:e2e',
       testMatch: ['/tests/chat/e2e/*.spec.ts'],
       testIgnore: [],
@@ -17,6 +22,11 @@ const config: PlaywrightTestConfig = {
     {
       name: 'softserve:bullies',
       testMatch: ['/tests/softserve/e2e/*.spec.ts'],
+      testIgnore: [],
+    },
+    {
+      name: 'bookretreats:e2e',
+      testMatch: ['/tests/bookretreats/e2e/*.spec.ts'],
       testIgnore: [],
     },
   ],
