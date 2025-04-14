@@ -84,6 +84,9 @@ jobs:
       - name: 📝 Create .env file
         run: echo "${{secrets.CONFIG_PROD}}" > .env.prod
 
+      - name: 🔎 List all environment variables
+        run: env | sort
+
       - name: ⚙️ Run E2E tests
         if: ${{ inputs.test_suite == 'ALL' || inputs.test_suite == matrix.suite }}
         run: xvfb-run npm run ${{ matrix.suite }}
