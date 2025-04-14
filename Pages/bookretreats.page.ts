@@ -74,34 +74,34 @@ export class BookRetreatsPage extends PageActions {
         const objectNameToSearch = objectName?.trim()
         console.log(`ReCAPTCHA Object To Search: ${objectNameToSearch}`)
 
-        console.log('Taking screenshot of reCAPTCHA challenge...')
-        await this.recaptchaChallengeContainer.screenshot({ path: 'recaptcha_challenge.png' })
+        // console.log('Taking screenshot of reCAPTCHA challenge...')
+        // await this.recaptchaChallengeContainer.screenshot({ path: 'recaptcha_challenge.png' })
 
-        console.log('Sending reCAPTCHA challenge to ChatGPT...')
-        const gptPrompt = await this.generateGptPrompt(objectNameToSearch)
-        const response = await fetch('https://api.openai.com/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
-          },
-          body: JSON.stringify({
-            model: 'gpt-4o',
-            messages: [
-              { role: 'user', content: gptPrompt }
-            ]
-          })
-        })
+        // console.log('Sending reCAPTCHA challenge to ChatGPT...')
+        // const gptPrompt = await this.generateGptPrompt(objectNameToSearch)
+        // const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        //   method: 'POST',
+        //   headers: {
+        //     'Content-Type': 'application/json',
+        //     'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
+        //   },
+        //   body: JSON.stringify({
+        //     model: 'gpt-4o',
+        //     messages: [
+        //       { role: 'user', content: gptPrompt }
+        //     ]
+        //   })
+        // })
         
-        const data = await response.json()
-        let imageIds: number[] = []
+        // const data = await response.json()
+        // let imageIds: number[] = []
 
-        try {
-          imageIds = JSON.parse(data.choices[0].message.content)
-          console.log(`Image IDs to click: ${imageIds}`)
-        } catch (error) {
-          console.error('Failed to parse image IDs:', error)
-        }
+        // try {
+        //   imageIds = JSON.parse(data.choices[0].message.content)
+        //   console.log(`Image IDs to click: ${imageIds}`)
+        // } catch (error) {
+        //   console.error('Failed to parse image IDs:', error)
+        // }
 
         // ...add logic to solve the challenge 
         // - click on the image containers with numbers from the array
