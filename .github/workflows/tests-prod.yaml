@@ -76,11 +76,11 @@ jobs:
           echo "Creating ${{ matrix.suite }} directory..."
           mkdir -p $GITHUB_WORKSPACE/${{ matrix.suite }}
           
-          echo "Attempting to copy html-report to ${{ matrix.suite }} directory"
-          if [ -d "$GITHUB_WORKSPACE/html-report" ]; then
-            cp -r $GITHUB_WORKSPACE/html-report/* $GITHUB_WORKSPACE/${{ matrix.suite }}/
+          echo "Attempting to copy html_report to ${{ matrix.suite }} directory"
+          if [ -d "$GITHUB_WORKSPACE/html_report" ]; then
+            cp -r $GITHUB_WORKSPACE/html_report/* $GITHUB_WORKSPACE/${{ matrix.suite }}/
           else
-            echo "No html-report directory found."
+            echo "No html_report directory found."
           fi
         shell: bash
 
