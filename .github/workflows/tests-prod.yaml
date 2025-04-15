@@ -68,6 +68,12 @@ jobs:
         if: ${{ inputs.test_suite == 'ALL' || inputs.test_suite == matrix.suite }}
         run: xvfb-run npm run ${{ env[matrix.suite] }}
 
+      - name: 🐞 List html_report contents
+        if: always()
+        run: |
+          echo "Listing html_report directory contents:"
+          ls -l $GITHUB_WORKSPACE/html_report || echo "html_report directory does not exist"
+
       - name: 📊 Prepare HTML Report Directory
         if: always()
         run: |
