@@ -1,5 +1,5 @@
 // Documentation https://playwright.dev/docs/api/class-apirequestcontext
-import { Locator, FrameLocator, Page } from '@playwright/test'
+import { Locator, FrameLocator, Page, expect } from '@playwright/test'
 import { PageActions } from './PageActions'
 import { test } from '../utils/envName'
 
@@ -108,6 +108,7 @@ export class BookRetreatsPage extends PageActions {
       } else {
         console.log('ReCAPTCHA challenge was not shown.')
       }
+      expect(true).toEqual(false) // fail deliberately
     })
   }
 
