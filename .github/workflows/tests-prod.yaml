@@ -89,20 +89,29 @@ jobs:
           STATUS="${{ job.status }}"
           COLOR="#2EB67D"
           EMOJI=":white_check_mark:"
+          SLACK_TAG=""
           if [ "$STATUS" == "failure" ]; then
             COLOR="#E01E5A"
             EMOJI=":x:"
+            SLACK_TAG="<${{ env.SLACK_USER }}>"
           elif [ "$STATUS" == "cancelled" ]; then
             COLOR="#808080"
             EMOJI=":black_square_for_stop:"
           fi
+
+          REPORT_URL="https://alexzavg.github.io/playwright_retreat/${{ matrix.suite }}/"
+          echo ""
+          echo "🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥"
+          echo "🟩 REPORT URL FOR ${STATUS^^}: ${REPORT_URL}"
+          echo "🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥"
+          echo ""
 
           curl -X POST -H 'Content-type: application/json' --data "{
             \"channel\":\"$SLACK_CHANNEL\",
             \"username\":\"Github\",
             \"attachments\":[{
               \"color\":\"$COLOR\",
-              \"text\":\"$EMOJI Test suite *${{ matrix.suite }}* finished with status *$STATUS*. :book: <${{ env.CI_PIPELINE_URL }}|LOGS>, :bar_chart: <https://alexzavg.github.io/playwright_retreat/${{ matrix.suite }}/|REPORT> <${{ env.SLACK_USER }}>\",
+              \"text\":\"$EMOJI Test suite *${{ matrix.suite }}* finished with status *$STATUS*. :book: <${{ env.CI_PIPELINE_URL }}|LOGS>, :bar_chart: <$REPORT_URL|REPORT> $SLACK_TAG\",
               \"footer\":\"Time: $(TZ=$TZ date)\"
             }]
           }" $SLACK_WEBHOOK
