@@ -68,53 +68,41 @@ jobs:
         if: ${{ inputs.test_suite == 'ALL' || inputs.test_suite == matrix.suite }}
         run: xvfb-run npm run ${{ env[matrix.suite] }}
 
-      - name: Upload report artifact
+      - name: 🧼 Clean previous report folder
         if: always()
-        uses: actions/upload-artifact@v2
-        with:
-          name: report-${{ matrix.suite }}
-          path: html_report
-
-  merge_and_publish:
-    runs-on: ubuntu-22.04
-    needs: e2e_tests
-    if: always()
-    steps:
-      - name: Download all test report artifacts
-        uses: actions/download-artifact@v2
-        with:
-          path: reports
-
-      - name: 🧬 Merge all reports into one
         run: |
-          mkdir -p merged_report
-          cp -r reports/*/* merged_report/
+          rm -rf ${{ matrix.suite }}
+          mkdir -p ${{ matrix.suite }}
+          cp -r html_report/* ${{ matrix.suite }}/ || echo "No report found to copy"
 
-      - name: 🛰 Deploy merged HTML report to GitHub Pages
+      - name: 🛰 Deploy suite report to GitHub Pages
+        if: always()
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: merged_report
-          destination_dir: merged-report
+          publish_dir: ${{ matrix.suite }}
+          destination_dir: ${{ matrix.suite }}
 
-  slack_notification:
-    runs-on: ubuntu-22.04
-    needs:
-      - e2e_tests
-      - merge_and_publish
-    if: always()
-    steps:
-      - name: Notify Slack of success
-        if: needs.e2e_tests.result == 'success'
+      - name: Notify Slack
+        if: always()
         run: |
-          curl -X POST -H 'Content-type: application/json' --data "{\"channel\":\"$SLACK_CHANNEL\",\"username\":\"Github\",\"attachments\":[{\"color\":\"#2EB67D\",\"text\":\":white_check_mark: All test suites passed. :book: <${{ env.CI_PIPELINE_URL }}|Logs>, :bar_chart: <https://alexzavg.github.io/playwright_retreat/merged-report|Report>\",\"footer\":\"Time: $(TZ=$TZ date)\"}]}" $SLACK_WEBHOOK
+          STATUS="${{ job.status }}"
+          COLOR="#2EB67D"
+          EMOJI=":white_check_mark:"
+          if [ "$STATUS" == "failure" ]; then
+            COLOR="#E01E5A"
+            EMOJI=":x:"
+          elif [ "$STATUS" == "cancelled" ]; then
+            COLOR="#808080"
+            EMOJI=":black_square_for_stop:"
+          fi
 
-      - name: Notify Slack of failure
-        if: needs.e2e_tests.result == 'failure'
-        run: |
-          curl -X POST -H 'Content-type: application/json' --data "{\"channel\":\"$SLACK_CHANNEL\",\"username\":\"Github\",\"attachments\":[{\"color\":\"#E01E5A\",\"text\":\":x: One or more test suites failed. :book: <${{ env.CI_PIPELINE_URL }}|Logs>, :bar_chart: <https://alexzavg.github.io/playwright_retreat/merged-report|Report>, <${{ env.SLACK_USER }}>\",\"footer\":\"Time: $(TZ=$TZ date)\"}]}" $SLACK_WEBHOOK
-
-      - name: Notify Slack of cancellation
-        if: needs.e2e_tests.result == 'cancelled'
-        run: |
-          curl -X POST -H 'Content-type: application/json' --data "{\"channel\":\"$SLACK_CHANNEL\",\"username\":\"Github\",\"attachments\":[{\"color\":\"#808080\",\"text\":\":black_square_for_stop: Test workflow was cancelled. :book: <${{ env.CI_PIPELINE_URL }}|Logs>, <${{ env.SLACK_USER }}>\",\"footer\":\"Time: $(TZ=$TZ date)\"}]}" $SLACK_WEBHOOK
+          curl -X POST -H 'Content-type: application/json' --data "{
+            \"channel\":\"$SLACK_CHANNEL\",
+            \"username\":\"Github\",
+            \"attachments\":[{
+              \"color\":\"$COLOR\",
+              \"text\":\"$EMOJI Test suite *${{ matrix.suite }}* finished with status *$STATUS*. :book: <${{ env.CI_PIPELINE_URL }}|LOGS>, :bar_chart: <https://alexzavg.github.io/playwright_retreat/${{ matrix.suite }}/|REPORT> <${{ env.SLACK_USER }}>\",
+              \"footer\":\"Time: $(TZ=$TZ date)\"
+            }]
+          }" $SLACK_WEBHOOK
