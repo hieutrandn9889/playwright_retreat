@@ -70,7 +70,7 @@ jobs:
 
       - name: Upload report artifact
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v2
         with:
           name: report-${{ matrix.suite }}
           path: html_report
@@ -81,7 +81,7 @@ jobs:
     if: always()
     steps:
       - name: Download all test report artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v2
         with:
           path: reports
 
