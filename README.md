@@ -10,4 +10,13 @@ To set the foundation for the tests on your local env simply go through the foll
 2. Install [nodejs & npm](https://nodejs.org/en/) 
 3. Run `npm run setup` in the project root folder
 4. To run the Chat App tests run `npm run chat:e2e:tests:prod` (or other commands, please see `package.json` for available cmds)
-5. Run `npm run show:report` to open the HTML report
+
+# VIEW HTML REPORTS LOCALLY
+HTML reports can be viewed in the `html_report` folder after running the tests.
+Run `npm run show:report` to open the HTML report.
+
+# VIEW HTML REPORTS IN CI
+HTML reports are deployed to GitHub Pages and can be viewed at https://alexzavg.github.io/playwright_retreat/{suite}, e.g. 
+- https://alexzavg.github.io/playwright_retreat/CHAT_E2E_TESTS_PROD
+- https://alexzavg.github.io/playwright_retreat/SOFTSERVE_BULLIES_TESTS_PROD
+- https://alexzavg.github.io/playwright_retreat/BOOKRETREATS_E2E_TESTS_PROD
