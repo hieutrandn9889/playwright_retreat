@@ -2,6 +2,8 @@ name: Tests Prod
 run-name: 🧪 Tests Prod
 
 on:
+  #schedule:
+  #  - cron: '0 6 * * 1-5' # 9:00 AM Kyiv time (Kyiv is UTC+3, so 6:00 UTC)
   push:
     branches:
       - template
