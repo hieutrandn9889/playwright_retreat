@@ -65,17 +65,19 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-      - name: Cache node_modules
-        id: cache-node-modules
-        uses: actions/cache@v4
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
       - name: Install dependencies
         run: |
           npm install
           npm install -g ts-node
           npx playwright install chrome
+      - name: Cache node_modules and Playwright browsers
+        id: cache-all
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            ~/.cache/ms-playwright
+          key: ${{ runner.os }}-node-browsers-${{ hashFiles('**/package-lock.json') }}
 
   e2e_tests:
     needs: [set-matrix, cache-deps]
@@ -95,13 +97,15 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      - name: Restore node_modules cache
+      - name: Restore node_modules and Playwright browsers cache
         uses: actions/cache@v4
         with:
-          path: node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          path: |
+            node_modules
+            ~/.cache/ms-playwright
+          key: ${{ runner.os }}-node-browsers-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
-            ${{ runner.os }}-node-
+            ${{ runner.os }}-node-browsers-
 
       - name: Install dependencies (if needed)
         run: |
