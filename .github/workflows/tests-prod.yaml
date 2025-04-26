@@ -44,7 +44,11 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        suite: [CHAT_E2E_TESTS_PROD, SOFTSERVE_BULLIES_TESTS_PROD, BOOKRETREATS_E2E_TESTS_PROD, BLOCKCHAIN_TESTS_PROD]
+        suite: ${{ fromJson(
+          inputs.test_suite == 'ALL'
+            && '["CHAT_E2E_TESTS_PROD","SOFTSERVE_BULLIES_TESTS_PROD","BOOKRETREATS_E2E_TESTS_PROD","BLOCKCHAIN_TESTS_PROD"]'
+            || '["' + inputs.test_suite + '"]'
+        ) }}
       fail-fast: false
     env:
       REPORT_URL: https://alexzavg.github.io/playwright_retreat/${{ matrix.suite }}
@@ -67,7 +71,6 @@ jobs:
         run: echo "${{secrets.CONFIG_PROD}}" > .env.prod
 
       - name: ⚙️ Run E2E tests
-        if: ${{ inputs.test_suite == 'ALL' || inputs.test_suite == matrix.suite }}
         run: xvfb-run npm run ${{ env[matrix.suite] }}
 
       - name: 🧼 Clean previous report folder
