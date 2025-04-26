@@ -29,6 +29,11 @@ const config: PlaywrightTestConfig = {
       testMatch: ['/tests/bookretreats/e2e/*.spec.ts'],
       testIgnore: [],
     },
+    {
+      name: 'blockchain',
+      testMatch: ['/tests/blockchain/*.spec.ts'],
+      testIgnore: [],
+    },
   ],
   timeout: globTimeout,
   expect: {

@@ -1,5 +1,8 @@
-- [Setup](#setup)
-- [Documentation](#documentation)
+# TABLE OF CONTENTS
+- [DEMO VIDEO](#demo-video)
+- [SETUP](#setup)
+- [VIEW HTML REPORTS LOCALLY](#view-html-reports-locally)
+- [VIEW HTML REPORTS IN CI](#view-html-reports-in-ci)
 
 # DEMO VIDEO
 [Demo Video](https://youtu.be/X3sui5j6WBY)
@@ -11,12 +14,31 @@ To set the foundation for the tests on your local env simply go through the foll
 3. Run `npm run setup` in the project root folder
 4. To run the Chat App tests run `npm run chat:e2e:tests:prod` (or other commands, please see `package.json` for available cmds)
 
-# VIEW HTML REPORTS LOCALLY
+## VIEW HTML REPORTS LOCALLY
 HTML reports can be viewed in the `html_report` folder after running the tests.
 Run `npm run show:report` to open the HTML report.
 
-# VIEW HTML REPORTS IN CI
+## VIEW HTML REPORTS IN CI
 HTML reports are deployed to GitHub Pages and can be viewed at https://alexzavg.github.io/playwright_retreat/{suite}, e.g. 
 - https://alexzavg.github.io/playwright_retreat/CHAT_E2E_TESTS_PROD
 - https://alexzavg.github.io/playwright_retreat/SOFTSERVE_BULLIES_TESTS_PROD
 - https://alexzavg.github.io/playwright_retreat/BOOKRETREATS_E2E_TESTS_PROD
+
+# TEST BLOCKCHAIN PROJECT SETUP
+1. Install deps
+```
+npm install web3
+npm install -g ganache
+```
+
+2. Launch ganache (local blockchain node on http://127.0.0.1:8545)
+```
+ganache
+```
+this should print something like this to your terminal
+![local blockchain node](image.png)
+
+3. Run tests
+```
+npm run blockchain:tests:prod
+```

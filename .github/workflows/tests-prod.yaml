@@ -23,6 +23,7 @@ on:
           - CHAT_E2E_TESTS_PROD
           - SOFTSERVE_BULLIES_TESTS_PROD
           - BOOKRETREATS_E2E_TESTS_PROD
+          - BLOCKCHAIN
           - ALL
 
 env:
@@ -30,6 +31,7 @@ env:
   CHAT_E2E_TESTS_PROD:          ${{vars.CHAT_E2E_TESTS_PROD}}
   SOFTSERVE_BULLIES_TESTS_PROD: ${{vars.SOFTSERVE_BULLIES_TESTS_PROD}}
   BOOKRETREATS_E2E_TESTS_PROD:  ${{vars.BOOKRETREATS_E2E_TESTS_PROD}}
+  BLOCKCHAIN_TESTS_PROD:        ${{vars.BLOCKCHAIN_TESTS_PROD}}
   SLACK_CHANNEL:                ${{vars.SLACK_CHANNEL}}
   SLACK_WEBHOOK:                ${{vars.SLACK_WEBHOOK}}
   SLACK_USER:                   ${{vars.SLACK_USER}}
@@ -42,7 +44,7 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        suite: [CHAT_E2E_TESTS_PROD, SOFTSERVE_BULLIES_TESTS_PROD, BOOKRETREATS_E2E_TESTS_PROD]
+        suite: [CHAT_E2E_TESTS_PROD, SOFTSERVE_BULLIES_TESTS_PROD, BOOKRETREATS_E2E_TESTS_PROD, BLOCKCHAIN_TESTS_PROD]
       fail-fast: false
     env:
       REPORT_URL: https://alexzavg.github.io/playwright_retreat/${{ matrix.suite }}
