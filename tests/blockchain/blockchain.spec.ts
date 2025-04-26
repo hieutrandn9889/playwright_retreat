@@ -8,7 +8,7 @@ let ganacheProcess: ReturnType<typeof spawn> | undefined
 
 console.log('Using Ganache URL:', ganacheUrl)
 
-test.describe('Local private ETH blockchain testnet tests', () => {
+test.describe('Local private ETH blockchain tests', () => {
   test.beforeAll(async () => {
     console.log('🚀 Starting Ganache...')
     ganacheProcess = spawn('ganache', [], { stdio: 'inherit' })
