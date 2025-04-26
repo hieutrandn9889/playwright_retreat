@@ -55,8 +55,30 @@ jobs:
             SUITES_JSON=$(printf '%s\n' "${{ github.event.inputs.test_suite }}" | jq -R . | jq -c -s .)
             echo "suite-matrix=$SUITES_JSON" >> $GITHUB_OUTPUT
           fi
+
+  cache-deps:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Use node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - name: Cache node_modules
+        id: cache-node-modules
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+      - name: Install dependencies
+        run: |
+          npm install
+          npm install -g ts-node
+          npx playwright install chrome
+
   e2e_tests:
-    needs: set-matrix
+    needs: [set-matrix, cache-deps]
     runs-on: ubuntu-22.04
     strategy:
       matrix:
@@ -68,21 +90,31 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: 📗 Use node.js ${{ env.NODE_VERSION }}
+      - name: Use node.js ${{ env.NODE_VERSION }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      - name: 🔽 Install dependencies
-        run: |
-          npm install
-          npm install -g ts-node
-          npx playwright install chrome
+      - name: Restore node_modules cache
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
 
-      - name: 📝 Create .env file
+      - name: Install dependencies (if needed)
+        run: |
+          if [ ! -d node_modules ] || [ -z "$(ls -A node_modules)" ]; then
+            npm install
+            npm install -g ts-node
+            npx playwright install chrome
+          fi
+
+      - name: Create .env file
         run: echo "${{secrets.CONFIG_PROD}}" > .env.prod
 
-      - name: ⚙️ Run E2E tests
+      - name: Run E2E tests
         run: xvfb-run npm run ${{ env[matrix.suite] }}
 
       - name: 🧼 Clean previous report folder
