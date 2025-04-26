@@ -1,5 +1,5 @@
-name: Tests Prod
-run-name: 🧪 Tests Prod
+name: Tests Prod Cache
+run-name: 🧪 Tests Prod Cache
 
 on:
   push:
