@@ -1,0 +1,134 @@
+name: Tests Prod
+run-name: 🧪 Tests Prod
+
+on:
+  push:
+    branches:
+      - template
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to run the tests against'
+        required: true
+        default: 'prod'
+        type: choice
+        options:
+          - PROD
+      test_suite:
+        description: 'Test suite(s) to run'
+        required: true
+        default: 'ALL'
+        type: choice
+        options:
+          - CHAT_E2E_TESTS_PROD
+          - SOFTSERVE_BULLIES_TESTS_PROD
+          - BOOKRETREATS_E2E_TESTS_PROD
+          - BLOCKCHAIN_TESTS_PROD
+          - ALL
+
+env:
+  ALL_TESTS_PROD:               ${{vars.ALL_TESTS_PROD}}
+  CHAT_E2E_TESTS_PROD:          ${{vars.CHAT_E2E_TESTS_PROD}}
+  SOFTSERVE_BULLIES_TESTS_PROD: ${{vars.SOFTSERVE_BULLIES_TESTS_PROD}}
+  BOOKRETREATS_E2E_TESTS_PROD:  ${{vars.BOOKRETREATS_E2E_TESTS_PROD}}
+  BLOCKCHAIN_TESTS_PROD:        ${{vars.BLOCKCHAIN_TESTS_PROD}}
+  SLACK_CHANNEL:                ${{vars.SLACK_CHANNEL}}
+  SLACK_WEBHOOK:                ${{vars.SLACK_WEBHOOK}}
+  SLACK_USER:                   ${{vars.SLACK_USER}}
+  CI_PIPELINE_URL:              "https://github.com/alexzavg/playwright_retreat/actions/runs/${{github.run_id}}"
+  TZ:                           ${{vars.TZ}}
+  NODE_VERSION:                 22.x
+
+jobs:
+  set-matrix:
+    runs-on: ubuntu-22.04
+    outputs:
+      suite-matrix: ${{ steps.set-matrix.outputs.suite-matrix }}
+    steps:
+      - id: set-matrix
+        run: |
+          ALL_SUITES=("CHAT_E2E_TESTS_PROD" "SOFTSERVE_BULLIES_TESTS_PROD" "BOOKRETREATS_E2E_TESTS_PROD" "BLOCKCHAIN_TESTS_PROD")
+          if [[ "${{ github.event.inputs.test_suite }}" == "ALL" ]]; then
+            SUITES_JSON=$(printf '%s\n' "${ALL_SUITES[@]}" | jq -R . | jq -c -s .)
+            echo "suite-matrix=$SUITES_JSON" >> $GITHUB_OUTPUT
+          else
+            SUITES_JSON=$(printf '%s\n' "${{ github.event.inputs.test_suite }}" | jq -R . | jq -c -s .)
+            echo "suite-matrix=$SUITES_JSON" >> $GITHUB_OUTPUT
+          fi
+  e2e_tests:
+    needs: set-matrix
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        suite: ${{ fromJson(needs.set-matrix.outputs.suite-matrix) }}
+      fail-fast: false
+    env:
+      REPORT_URL: https://alexzavg.github.io/playwright_retreat/${{ matrix.suite }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: 📗 Use node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: 🔽 Install dependencies
+        run: |
+          npm install
+          npm install -g ts-node
+          npx playwright install chrome
+
+      - name: 📝 Create .env file
+        run: echo "${{secrets.CONFIG_PROD}}" > .env.prod
+
+      - name: ⚙️ Run E2E tests
+        run: xvfb-run npm run ${{ env[matrix.suite] }}
+
+      - name: 🧼 Clean previous report folder
+        if: always()
+        run: |
+          rm -rf ${{ matrix.suite }}
+          mkdir -p ${{ matrix.suite }}
+          cp -r html_report/* ${{ matrix.suite }}/ || echo "No report found to copy"
+
+      - name: 🛰 Deploy suite report to GitHub Pages
+        if: always()
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ${{ matrix.suite }}
+          destination_dir: ${{ matrix.suite }}
+
+      - name: Notify Slack
+        if: always()
+        run: |
+          STATUS="${{ job.status }}"
+          COLOR="#2EB67D"
+          EMOJI=":white_check_mark:"
+          SLACK_TAG=""
+          if [ "$STATUS" == "failure" ]; then
+            COLOR="#E01E5A"
+            EMOJI=":x:"
+            SLACK_TAG="<${{ env.SLACK_USER }}>"
+          elif [ "$STATUS" == "cancelled" ]; then
+            COLOR="#808080"
+            EMOJI=":black_square_for_stop:"
+          fi
+
+          REPORT_URL="https://alexzavg.github.io/playwright_retreat/${{ matrix.suite }}/"
+          echo ""
+          echo "🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥"
+          echo "🟩 REPORT URL FOR ${STATUS^^}: ${REPORT_URL}"
+          echo "🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥"
+          echo ""
+
+          curl -X POST -H 'Content-type: application/json' --data "{
+            \"channel\":\"$SLACK_CHANNEL\",
+            \"username\":\"Github\",
+            \"attachments\":[{
+              \"color\":\"$COLOR\",
+              \"text\":\"$EMOJI Test suite *${{ matrix.suite }}* finished with status *$STATUS*. :book: <${{ env.CI_PIPELINE_URL }}|LOGS>, :bar_chart: <$REPORT_URL|REPORT> $SLACK_TAG\",
+              \"footer\":\"Time: $(TZ=$TZ date)\"
+            }]
+          }" $SLACK_WEBHOOK
