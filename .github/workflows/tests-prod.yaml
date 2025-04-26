@@ -40,15 +40,24 @@ env:
   NODE_VERSION:                 22.x
 
 jobs:
+  set-matrix:
+    runs-on: ubuntu-22.04
+    outputs:
+      suite-matrix: ${{ steps.set-matrix.outputs.suite-matrix }}
+    steps:
+      - id: set-matrix
+        run: |
+          if [[ "${{ github.event.inputs.test_suite }}" == "ALL" ]]; then
+            echo '::set-output name=suite-matrix@["CHAT_E2E_TESTS_PROD","SOFTSERVE_BULLIES_TESTS_PROD","BOOKRETREATS_E2E_TESTS_PROD","BLOCKCHAIN_TESTS_PROD"]'
+          else
+            echo "::set-output name=suite-matrix@['${{ github.event.inputs.test_suite }}']"
+          fi
   e2e_tests:
+    needs: set-matrix
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        suite: ${{ fromJson(
-          inputs.test_suite == 'ALL'
-            && '["CHAT_E2E_TESTS_PROD","SOFTSERVE_BULLIES_TESTS_PROD","BOOKRETREATS_E2E_TESTS_PROD","BLOCKCHAIN_TESTS_PROD"]'
-            || '["' + inputs.test_suite + '"]'
-        ) }}
+        suite: ${{ fromJson(needs.set-matrix.outputs.suite-matrix) }}
       fail-fast: false
     env:
       REPORT_URL: https://alexzavg.github.io/playwright_retreat/${{ matrix.suite }}
