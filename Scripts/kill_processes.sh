@@ -3,7 +3,7 @@
 echo "💣 Killing all Playwright-related processes"
 
 # Маски (можешь добавлять свои)
-MASKS=("playwright" "npm exec playwright" "playwright_chromiumdev_profile" "node.*playwright")
+MASKS=("playwright" "npm exec playwright" "playwright_chromiumdev_profile" "node.*playwright" "node.*ganache" "ganache")
 
 for MASK in "${MASKS[@]}"; do
   PIDS=$(pgrep -f "$MASK")

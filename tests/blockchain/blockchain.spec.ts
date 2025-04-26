@@ -1,12 +1,30 @@
 import { test, step } from '../../utils/envName'
 import { expect } from '@playwright/test'
 import Web3 from 'web3'
+import { spawn } from 'child_process'
 
-const ganacheUrl = process.env.GANACHE_URL
+const ganacheUrl = process.env.GANACHE_URL || 'http://127.0.0.1:8545'
+let ganacheProcess: ReturnType<typeof spawn> | undefined
 
 console.log('Using Ganache URL:', ganacheUrl)
 
 test.describe('Local private ETH blockchain testnet tests', () => {
+  test.beforeAll(async () => {
+    console.log('🚀 Starting Ganache...')
+    ganacheProcess = spawn('ganache', [], { stdio: 'inherit' })
+
+    console.log('⏳ Waiting for Ganache to start...')
+    await new Promise((resolve) => setTimeout(resolve, 3000))
+    console.log('✅ Ganache started')
+  })
+
+  test.afterAll(async () => {
+    if (ganacheProcess) {
+      console.log('🛑 Stopping Ganache...')
+      ganacheProcess.kill()
+    }
+  })
+
   test('sends transaction and validates balances', async () => {
     const web3 = new Web3(ganacheUrl)
 
@@ -40,7 +58,7 @@ test.describe('Local private ETH blockchain testnet tests', () => {
     })
 
     await step('sends transaction', async () => {
-      console.log('Sending transaction')
+      console.log('Sending transaction...')
       const value = web3.utils.toWei('1', 'ether')
       console.log('Transferring value (Wei):', value)
       console.log('Transferring value (ETH):', web3.utils.fromWei(value, 'ether'))
@@ -55,11 +73,11 @@ test.describe('Local private ETH blockchain testnet tests', () => {
     })
 
     await step('validates updated balances', async () => {
-      console.log('Validating updated balances')
+      console.log('Validating updated balances...')
       const balanceReceiverAfter = await web3.eth.getBalance(receiver)
       console.log('Receiver balance before (Wei):', balanceReceiverBefore)
       console.log('Receiver balance after (Wei):', balanceReceiverAfter)
-      
+
       const receiverBalanceBeforeInEth = Number(web3.utils.fromWei(balanceReceiverBefore, 'ether'))
       const receiverBalanceAfterInEth = Number(web3.utils.fromWei(balanceReceiverAfter, 'ether'))
       console.log('Receiver balance before (ETH):', receiverBalanceBeforeInEth)
