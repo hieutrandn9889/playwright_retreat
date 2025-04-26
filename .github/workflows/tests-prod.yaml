@@ -23,7 +23,7 @@ on:
           - CHAT_E2E_TESTS_PROD
           - SOFTSERVE_BULLIES_TESTS_PROD
           - BOOKRETREATS_E2E_TESTS_PROD
-          - BLOCKCHAIN
+          - BLOCKCHAIN_TESTS_PROD
           - ALL
 
 env:
@@ -47,10 +47,13 @@ jobs:
     steps:
       - id: set-matrix
         run: |
+          ALL_SUITES=("CHAT_E2E_TESTS_PROD" "SOFTSERVE_BULLIES_TESTS_PROD" "BOOKRETREATS_E2E_TESTS_PROD" "BLOCKCHAIN_TESTS_PROD")
           if [[ "${{ github.event.inputs.test_suite }}" == "ALL" ]]; then
-            echo '::set-output name=suite-matrix@["CHAT_E2E_TESTS_PROD","SOFTSERVE_BULLIES_TESTS_PROD","BOOKRETREATS_E2E_TESTS_PROD","BLOCKCHAIN_TESTS_PROD"]'
+            SUITES_JSON=$(printf '%s\n' "${ALL_SUITES[@]}" | jq -R . | jq -s .)
+            echo "suite-matrix=$SUITES_JSON" >> $GITHUB_OUTPUT
           else
-            echo "::set-output name=suite-matrix@['${{ github.event.inputs.test_suite }}']"
+            SUITES_JSON=$(printf '%s\n' "${{ github.event.inputs.test_suite }}" | jq -R . | jq -s .)
+            echo "suite-matrix=$SUITES_JSON" >> $GITHUB_OUTPUT
           fi
   e2e_tests:
     needs: set-matrix
