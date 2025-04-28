@@ -24,3 +24,4 @@ HTML reports are deployed to GitHub Pages and can be viewed at https://alexzavg.
 - https://alexzavg.github.io/playwright_retreat/SOFTSERVE_BULLIES_TESTS_PROD
 - https://alexzavg.github.io/playwright_retreat/BOOKRETREATS_E2E_TESTS_PROD
 - https://alexzavg.github.io/playwright_retreat/BLOCKCHAIN_TESTS_PROD
+- https://alexzavg.github.io/playwright_retreat/GMAIL_TESTS_PROD

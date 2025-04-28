@@ -16,6 +16,7 @@
     "bookretreats:e2e:tests:prod": "node run-playwright.js chrome bookretreats:e2e prod",
     "blockchain:tests:prod": "node run-playwright.js chrome blockchain prod",
     "all:tests:prod": "node run-playwright.js chrome all prod",
+    "gmail:tests:prod": "node run-playwright.js chrome gmail prod",
     "show:report": "npx playwright show-report html_report"
   },
   "types": "./global.d.ts",
@@ -34,6 +35,8 @@
     "dotenv": "^16.3.1",
     "fs": "^0.0.1-security",
     "ganache": "^7.9.2",
+    "googleapis": "^148.0.0",
+    "nodemailer": "^6.10.1",
     "path": "^0.12.7",
     "playwright": "^1.52.0",
     "web3": "^4.16.0"
