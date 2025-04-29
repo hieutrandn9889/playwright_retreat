@@ -1,5 +1,5 @@
-name: Tests Prod
-run-name: 🧪 Tests Prod
+name: Tests
+run-name: 🧪 Tests
 
 on:
   #schedule:
