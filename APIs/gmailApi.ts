@@ -4,6 +4,13 @@ import dotenv from 'dotenv'
 
 dotenv.config()
 
+interface GmailData {
+  senderEmail: string
+  receiverEmail: string
+  subject: string
+  text: string
+}
+
 export class GmailApi {
   private oAuth2Client
   private gmail
@@ -32,14 +39,14 @@ export class GmailApi {
     })
   }
 
-  async sendEmail(fromEmail: string, toEmail: string, subject: string, text: string): Promise<void> {
+  async sendEmail(data: GmailData): Promise<void> {
     const accessToken = await this.oAuth2Client.getAccessToken()
 
     const transport = nodemailer.createTransport({
       service: 'gmail',
       auth: {
         type: 'OAuth2',
-        user: fromEmail,
+        user: data.senderEmail,
         clientId: this.clientId,
         clientSecret: this.clientSecret,
         refreshToken: this.refreshToken,
@@ -48,13 +55,13 @@ export class GmailApi {
     })
 
     const result = await transport.sendMail({
-      from: fromEmail,
-      to: toEmail,
-      subject,
-      text,
+      from: data.senderEmail,
+      to: data.receiverEmail,
+      subject: data.subject,
+      text: data.text,
     })
 
-    console.log(`📤 Sent email with subject "${subject}", messageId: ${result.messageId}`)
+    console.log(`📤 Sent email with subject "${data.subject}", messageId: ${result.messageId}`)
   }
 
   async waitForUnreadEmailWithSubjectFragment(subjectFragment: string): Promise<string | null> {
