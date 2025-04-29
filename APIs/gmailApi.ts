@@ -64,8 +64,8 @@ export class GmailApi {
     console.log(`📤 Sent email with subject "${data.subject}", messageId: ${result.messageId}`)
   }
 
-  async waitForUnreadEmailWithSubjectFragment(subjectFragment: string): Promise<string | null> {
-    console.log(`⏳ Waiting for unread email containing: "${subjectFragment}"`)
+  async waitForUnreadEmailWithSubjectFragment(subjectFragment: string, expectedBodyText?: string): Promise<string | null> {
+    console.log(`⏳ Waiting for unread email with subject containing: "${subjectFragment}"`)
 
     while (true) {
       const res = await this.gmail.users.messages.list({
@@ -85,20 +85,48 @@ export class GmailApi {
         const full = await this.gmail.users.messages.get({
           userId: 'me',
           id: msg.id!,
-          format: 'metadata',
-          metadataHeaders: ['Subject'],
+          format: 'full',
         })
 
-        const subjectHeader = full.data.payload?.headers?.find(h => h.name === 'Subject')
+        const headers = full.data.payload?.headers || []
+        const subjectHeader = headers.find(h => h.name === 'Subject')
         const subject = subjectHeader?.value || ''
 
-        if (subject.toLowerCase().includes(subjectFragment.toLowerCase())) {
-          console.log(`✅ Found matching email: "${subject}"`)
-          return subject
+        if (!subject.toLowerCase().includes(subjectFragment.toLowerCase())) {
+          continue
         }
+
+        // Try to get email body (plain text first)
+        let body = ''
+        if (full.data.payload?.parts) {
+          for (const part of full.data.payload.parts) {
+            if ((part.mimeType === 'text/plain' || part.mimeType === 'text/html') && part.body?.data) {
+              body = Buffer.from(part.body.data, 'base64').toString('utf-8')
+              break
+            }
+          }
+        } else if (full.data.payload?.body?.data) {
+          body = Buffer.from(full.data.payload.body.data, 'base64').toString('utf-8')
+        }
+
+        console.log(`📨 Email Found.`)
+        console.log(`📬 Subject: ${subject}`)
+        console.log(`📝 Body:`)
+        console.log(`----------------------------------------`)
+        console.log(body.trim())
+        console.log(`----------------------------------------`)
+
+        if (expectedBodyText && !body.toLowerCase().includes(expectedBodyText.toLowerCase())) {
+          console.log('❌ Email body does not contain expected text. Retrying...')
+          await this.delay(5000)
+          continue
+        }
+
+        console.log('✅ Email subject and body match.')
+        return subject
       }
 
-      console.log(`🔁 No matching subject yet, retrying in 5s...`)
+      console.log(`🔁 No matching subject/body yet, retrying in 5s...`)
       await this.delay(5000)
     }
   }
