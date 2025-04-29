@@ -151,9 +151,9 @@ jobs:
 
       - name: Create .env file
         run: |
-          ENV_FILE=".env.${{ toLower(env.ENV_PREFIX) }}"
-          CONFIG_SECRET="CONFIG_${{ env.ENV_PREFIX }}"
-          echo "${{ secrets[CONFIG_SECRET] }}" > $ENV_FILE
+          ENV_FILE=".env.${ENV_PREFIX,,}"
+          CONFIG_SECRET="CONFIG_${ENV_PREFIX}"
+          echo "${!CONFIG_SECRET}" > $ENV_FILE
 
       - name: Run E2E tests
         run: xvfb-run npm run ${{ env[matrix.suite] }}
