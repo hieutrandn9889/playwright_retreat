@@ -12,29 +12,31 @@ on:
       environment:
         description: 'Environment to run the tests against'
         required: true
-        default: 'prod'
+        default: 'PROD'
         type: choice
         options:
           - PROD
+          - STAGE
       test_suite:
-        description: 'Test suite(s) to run (comma-separated, e.g. CHAT_E2E_TESTS_PROD,BOOKRETREATS_E2E_TESTS_PROD, or ALL). Available suites: CHAT_E2E_TESTS_PROD, SOFTSERVE_BULLIES_TESTS_PROD, BOOKRETREATS_E2E_TESTS_PROD, BLOCKCHAIN_TESTS_PROD, GMAIL_TESTS_PROD'
+        description: 'Test suite(s) to run. Available suites: CHAT_E2E_TESTS, SOFTSERVE_BULLIES_TESTS, BOOKRETREATS_E2E_TESTS, BLOCKCHAIN_TESTS, GMAIL_TESTS'
         required: true
         default: 'ALL'
         type: string
 
 env:
-  ALL_TESTS_PROD:               ${{vars.ALL_TESTS_PROD}}
-  CHAT_E2E_TESTS_PROD:          ${{vars.CHAT_E2E_TESTS_PROD}}
-  SOFTSERVE_BULLIES_TESTS_PROD: ${{vars.SOFTSERVE_BULLIES_TESTS_PROD}}
-  BOOKRETREATS_E2E_TESTS_PROD:  ${{vars.BOOKRETREATS_E2E_TESTS_PROD}}
-  BLOCKCHAIN_TESTS_PROD:        ${{vars.BLOCKCHAIN_TESTS_PROD}}
-  GMAIL_TESTS_PROD:             ${{vars.GMAIL_TESTS_PROD}}
-  SLACK_CHANNEL:                ${{vars.SLACK_CHANNEL}}
-  SLACK_WEBHOOK:                ${{vars.SLACK_WEBHOOK}}
-  SLACK_USER:                   ${{vars.SLACK_USER}}
-  CI_PIPELINE_URL:              "https://github.com/alexzavg/playwright_retreat/actions/runs/${{github.run_id}}"
-  TZ:                           ${{vars.TZ}}
-  NODE_VERSION:                 22.x
+  ENV_PREFIX:              ${{ github.event.inputs.environment }}
+  ALL_TESTS:               ${{ vars[format('ALL_TESTS_{0}', env.ENV_PREFIX)] }}
+  CHAT_E2E_TESTS:          ${{ vars[format('CHAT_E2E_TESTS_{0}', env.ENV_PREFIX)] }}
+  SOFTSERVE_BULLIES_TESTS: ${{ vars[format('SOFTSERVE_BULLIES_TESTS_{0}', env.ENV_PREFIX)] }}
+  BOOKRETREATS_E2E_TESTS:  ${{ vars[format('BOOKRETREATS_E2E_TESTS_{0}', env.ENV_PREFIX)] }}
+  BLOCKCHAIN_TESTS:        ${{ vars[format('BLOCKCHAIN_TESTS_{0}', env.ENV_PREFIX)] }}
+  GMAIL_TESTS:             ${{ vars[format('GMAIL_TESTS_{0}', env.ENV_PREFIX)] }}
+  SLACK_CHANNEL:           ${{ vars.SLACK_CHANNEL }}
+  SLACK_WEBHOOK:           ${{ vars.SLACK_WEBHOOK }}
+  SLACK_USER:              ${{ vars.SLACK_USER }}
+  CI_PIPELINE_URL:         "https://github.com/alexzavg/playwright_retreat/actions/runs/${{ github.run_id }}"
+  TZ:                      ${{ vars.TZ }}
+  NODE_VERSION:            22.x
 
 jobs:
   set-matrix:
@@ -44,15 +46,22 @@ jobs:
     steps:
       - id: set-matrix
         run: |
-          ALL_SUITES=("CHAT_E2E_TESTS_PROD" "SOFTSERVE_BULLIES_TESTS_PROD" "BOOKRETREATS_E2E_TESTS_PROD" "BLOCKCHAIN_TESTS_PROD" "GMAIL_TESTS_PROD")
+          BASE_SUITES=("CHAT_E2E_TESTS" "SOFTSERVE_BULLIES_TESTS" "BOOKRETREATS_E2E_TESTS" "BLOCKCHAIN_TESTS" "GMAIL_TESTS")
+          ENV_PREFIX="$ENV_PREFIX"
           if [[ "${{ github.event.inputs.test_suite }}" == "ALL" ]]; then
-            SUITES_JSON=$(printf '%s\n' "${ALL_SUITES[@]}" | jq -R . | jq -c -s .)
-            echo "suite-matrix=$SUITES_JSON" >> $GITHUB_OUTPUT
+            for suite in "${BASE_SUITES[@]}"; do
+              ALL_SUITES+=("${suite}_${ENV_PREFIX}")
+            done
           else
             IFS=',' read -ra SELECTED <<< "${{ github.event.inputs.test_suite }}"
-            SUITES_JSON=$(printf '%s\n' "${SELECTED[@]}" | jq -R . | jq -c -s .)
-            echo "suite-matrix=$SUITES_JSON" >> $GITHUB_OUTPUT
+            for suite in "${SELECTED[@]}"; do
+              ALL_SUITES+=("${suite}_${ENV_PREFIX}")
+            done
           fi
+          SUITES_JSON=$(printf '%s\n' "${ALL_SUITES[@]}" | jq -R . | jq -c -s .)
+          echo "suite-matrix=$SUITES_JSON" >> $GITHUB_OUTPUT
+        env:
+          ENV_PREFIX: ${{ env.ENV_PREFIX }}
 
   cache-deps:
     runs-on: ubuntu-22.04
@@ -114,7 +123,10 @@ jobs:
           fi
 
       - name: Create .env file
-        run: echo "${{secrets.CONFIG_PROD}}" > .env.prod
+        run: |
+          ENV_FILE=".env.${{ env.ENV_PREFIX | toLower }}"
+          CONFIG_SECRET="CONFIG_${{ env.ENV_PREFIX }}"
+          echo "${{ secrets[CONFIG_SECRET] }}" > $ENV_FILE
 
       - name: Run E2E tests
         run: xvfb-run npm run ${{ env[matrix.suite] }}
