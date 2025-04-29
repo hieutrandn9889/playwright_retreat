@@ -25,12 +25,6 @@ on:
 
 env:
   ENV_PREFIX:              ${{ github.event.inputs.environment }}
-  ALL_TESTS:               ${{ vars[format('ALL_TESTS_{0}', env.ENV_PREFIX)] }}
-  CHAT_E2E_TESTS:          ${{ vars[format('CHAT_E2E_TESTS_{0}', env.ENV_PREFIX)] }}
-  SOFTSERVE_BULLIES_TESTS: ${{ vars[format('SOFTSERVE_BULLIES_TESTS_{0}', env.ENV_PREFIX)] }}
-  BOOKRETREATS_E2E_TESTS:  ${{ vars[format('BOOKRETREATS_E2E_TESTS_{0}', env.ENV_PREFIX)] }}
-  BLOCKCHAIN_TESTS:        ${{ vars[format('BLOCKCHAIN_TESTS_{0}', env.ENV_PREFIX)] }}
-  GMAIL_TESTS:             ${{ vars[format('GMAIL_TESTS_{0}', env.ENV_PREFIX)] }}
   SLACK_CHANNEL:           ${{ vars.SLACK_CHANNEL }}
   SLACK_WEBHOOK:           ${{ vars.SLACK_WEBHOOK }}
   SLACK_USER:              ${{ vars.SLACK_USER }}
@@ -39,7 +33,27 @@ env:
   NODE_VERSION:            22.x
 
 jobs:
+  set-env-vars:
+    runs-on: ubuntu-22.04
+    outputs:
+      ALL_TESTS: ${{ steps.set-vars.outputs.ALL_TESTS }}
+      CHAT_E2E_TESTS: ${{ steps.set-vars.outputs.CHAT_E2E_TESTS }}
+      SOFTSERVE_BULLIES_TESTS: ${{ steps.set-vars.outputs.SOFTSERVE_BULLIES_TESTS }}
+      BOOKRETREATS_E2E_TESTS: ${{ steps.set-vars.outputs.BOOKRETREATS_E2E_TESTS }}
+      BLOCKCHAIN_TESTS: ${{ steps.set-vars.outputs.BLOCKCHAIN_TESTS }}
+      GMAIL_TESTS: ${{ steps.set-vars.outputs.GMAIL_TESTS }}
+    steps:
+      - id: set-vars
+        run: |
+          echo "ALL_TESTS=${{ vars[format('ALL_TESTS_{0}', github.event.inputs.environment)] }}" >> $GITHUB_OUTPUT
+          echo "CHAT_E2E_TESTS=${{ vars[format('CHAT_E2E_TESTS_{0}', github.event.inputs.environment)] }}" >> $GITHUB_OUTPUT
+          echo "SOFTSERVE_BULLIES_TESTS=${{ vars[format('SOFTSERVE_BULLIES_TESTS_{0}', github.event.inputs.environment)] }}" >> $GITHUB_OUTPUT
+          echo "BOOKRETREATS_E2E_TESTS=${{ vars[format('BOOKRETREATS_E2E_TESTS_{0}', github.event.inputs.environment)] }}" >> $GITHUB_OUTPUT
+          echo "BLOCKCHAIN_TESTS=${{ vars[format('BLOCKCHAIN_TESTS_{0}', github.event.inputs.environment)] }}" >> $GITHUB_OUTPUT
+          echo "GMAIL_TESTS=${{ vars[format('GMAIL_TESTS_{0}', github.event.inputs.environment)] }}" >> $GITHUB_OUTPUT
+
   set-matrix:
+    needs: set-env-vars
     runs-on: ubuntu-22.04
     outputs:
       suite-matrix: ${{ steps.set-matrix.outputs.suite-matrix }}
@@ -87,14 +101,27 @@ jobs:
           key: ${{ runner.os }}-node-browsers-${{ hashFiles('**/package-lock.json') }}
 
   e2e_tests:
-    needs: [set-matrix, cache-deps]
+    needs: [set-env-vars, set-matrix, cache-deps]
     runs-on: ubuntu-22.04
     strategy:
       matrix:
         suite: ${{ fromJson(needs.set-matrix.outputs.suite-matrix) }}
       fail-fast: false
     env:
-      REPORT_URL: https://alexzavg.github.io/playwright_retreat/${{ matrix.suite }}
+      ALL_TESTS:               ${{ needs.set-env-vars.outputs.ALL_TESTS }}
+      CHAT_E2E_TESTS:          ${{ needs.set-env-vars.outputs.CHAT_E2E_TESTS }}
+      SOFTSERVE_BULLIES_TESTS: ${{ needs.set-env-vars.outputs.SOFTSERVE_BULLIES_TESTS }}
+      BOOKRETREATS_E2E_TESTS:  ${{ needs.set-env-vars.outputs.BOOKRETREATS_E2E_TESTS }}
+      BLOCKCHAIN_TESTS:        ${{ needs.set-env-vars.outputs.BLOCKCHAIN_TESTS }}
+      GMAIL_TESTS:             ${{ needs.set-env-vars.outputs.GMAIL_TESTS }}
+      REPORT_URL:              https://alexzavg.github.io/playwright_retreat/${{ matrix.suite }}
+      ENV_PREFIX:              ${{ github.event.inputs.environment }}
+      SLACK_CHANNEL:           ${{ vars.SLACK_CHANNEL }}
+      SLACK_WEBHOOK:           ${{ vars.SLACK_WEBHOOK }}
+      SLACK_USER:              ${{ vars.SLACK_USER }}
+      CI_PIPELINE_URL:         "https://github.com/alexzavg/playwright_retreat/actions/runs/${{ github.run_id }}"
+      TZ:                      ${{ vars.TZ }}
+      NODE_VERSION:            22.x
     steps:
       - name: Checkout
         uses: actions/checkout@v4
