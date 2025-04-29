@@ -6,8 +6,8 @@ allure-report
 html-report
 .vscode
 .env.dev
-#.env.stage
-#.env.prod
+.env.stage
+.env.prod
 test_users.txt
 test_logs
 html_report
