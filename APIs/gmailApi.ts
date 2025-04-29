@@ -1,21 +1,29 @@
 import nodemailer from 'nodemailer'
 import { google } from 'googleapis'
+import dotenv from 'dotenv'
+
+dotenv.config()
 
 export class GmailApi {
   private oAuth2Client
   private gmail
+  private readonly clientId: string
+  private readonly clientSecret: string
+  private readonly redirectUri: string
+  private readonly refreshToken: string
 
-  constructor(
-    private clientId: string,
-    private clientSecret: string,
-    private redirectUri: string,
-    private refreshToken: string
-  ) {
+  constructor() {
+    this.clientId = process.env.GMAIL_CLIENT_ID!
+    this.clientSecret = process.env.GMAIL_CLIENT_SECRET!
+    this.redirectUri = process.env.GMAIL_REDIRECT_URI!
+    this.refreshToken = process.env.GMAIL_REFRESH_TOKEN!
+
     this.oAuth2Client = new google.auth.OAuth2(
       this.clientId,
       this.clientSecret,
       this.redirectUri
     )
+
     this.oAuth2Client.setCredentials({ refresh_token: this.refreshToken })
 
     this.gmail = google.gmail({
@@ -24,7 +32,7 @@ export class GmailApi {
     })
   }
 
-  async sendEmail(fromEmail: string, subject: string, text: string): Promise<void> {
+  async sendEmail(fromEmail: string, toEmail: string, subject: string, text: string): Promise<void> {
     const accessToken = await this.oAuth2Client.getAccessToken()
 
     const transport = nodemailer.createTransport({
@@ -41,7 +49,7 @@ export class GmailApi {
 
     const result = await transport.sendMail({
       from: fromEmail,
-      to: fromEmail,
+      to: toEmail,
       subject,
       text,
     })

@@ -23,11 +23,6 @@ export class PageManager {
     return new BookRetreatsPage(this.page)
   }
   get gmailApi(): GmailApi {
-    return new GmailApi(
-      process.env.GMAIL_CLIENT_ID!,
-      process.env.GMAIL_CLIENT_SECRET!,
-      process.env.GMAIL_REDIRECT_URI!,
-      process.env.GMAIL_REFRESH_TOKEN!
-    )
+    return new GmailApi()
   }
 }
