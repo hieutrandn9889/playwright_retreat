@@ -19,7 +19,7 @@ export class OTPGenerator {
       secret,
       encoding: 'base32',
       token,
-      window: 1
+      window: 0
     })
 
     console.log(`OTP Verification Result: ${isValid ? '✅ VALID' : '❌ INVALID'}`)

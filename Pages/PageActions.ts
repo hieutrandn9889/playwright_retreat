@@ -185,6 +185,18 @@ export class PageActions {
     })
   }
 
+  async clearBrowserData() {
+    await step(`${this.uiActionPrefix}Clearing browser data`, async () => {
+      await this.page.context().clearCookies()
+      await this.page.context().clearPermissions()
+
+      await this.page.evaluate(() => {
+        localStorage.clear()
+        sessionStorage.clear()
+      })
+    })
+  }
+
   async checkElementAttribute(locator: Locator, attr: string, value: string) {
     await step(
       `${this.uiActionPrefix}Gets attribute: '${attr}' from element: '${locator}'`,
@@ -387,5 +399,7 @@ export class PageActions {
       }
     })
   }
+
+  
 
 }

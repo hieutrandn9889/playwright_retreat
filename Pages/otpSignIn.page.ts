@@ -34,6 +34,7 @@ export class OTPSignInPage extends PageActions {
   async signIn(signInData: SignInData) {
     await step(`signs in with valid user credentials & OTP`, async () => {
       await this.openUrl(this.baseUrl)
+      await this.clearBrowserData()
       await this.fillElement(this.emailInput, signInData.email)
       await this.fillElement(this.passwordInput, signInData.password)
 
