@@ -17,7 +17,7 @@ on:
         options:
           - STAGE
       test_suite:
-        description: 'Test suite(s) to run (comma-separated, e.g. CHAT_E2E_TESTS_STAGE,BOOKRETREATS_E2E_TESTS_STAGE, or ALL). Available suites: CHAT_E2E_TESTS_STAGE, SOFTSERVE_BULLIES_TESTS_STAGE, BOOKRETREATS_E2E_TESTS_STAGE, BLOCKCHAIN_TESTS_STAGE, GMAIL_TESTS_STAGE'
+        description: 'Test suite(s) to run (comma-separated, e.g. CHAT_E2E_TESTS_STAGE,BOOKRETREATS_E2E_TESTS_STAGE, or ALL). Available suites: CHAT_E2E_TESTS_STAGE, SOFTSERVE_BULLIES_TESTS_STAGE, BOOKRETREATS_E2E_TESTS_STAGE, BLOCKCHAIN_TESTS_STAGE, GMAIL_TESTS_STAGE, AUTHENTICATION_TESTS_STAGE'
         required: true
         default: 'ALL'
         type: string
@@ -29,6 +29,7 @@ env:
   BOOKRETREATS_E2E_TESTS_STAGE:   ${{vars.BOOKRETREATS_E2E_TESTS_STAGE}}
   BLOCKCHAIN_TESTS_STAGE:         ${{vars.BLOCKCHAIN_TESTS_STAGE}}
   GMAIL_TESTS_STAGE:              ${{vars.GMAIL_TESTS_STAGE}}
+  AUTHENTICATION_TESTS_STAGE:     ${{vars.AUTHENTICATION_TESTS_STAGE}}
   SLACK_CHANNEL:                  ${{vars.SLACK_CHANNEL}}
   SLACK_WEBHOOK:                  ${{vars.SLACK_WEBHOOK}}
   SLACK_USER:                     ${{vars.SLACK_USER}}
@@ -44,7 +45,7 @@ jobs:
     steps:
       - id: set-matrix
         run: |
-          ALL_SUITES=("CHAT_E2E_TESTS_STAGE" "SOFTSERVE_BULLIES_TESTS_STAGE" "BOOKRETREATS_E2E_TESTS_STAGE" "BLOCKCHAIN_TESTS_STAGE" "GMAIL_TESTS_STAGE")
+          ALL_SUITES=("CHAT_E2E_TESTS_STAGE" "SOFTSERVE_BULLIES_TESTS_STAGE" "BOOKRETREATS_E2E_TESTS_STAGE" "BLOCKCHAIN_TESTS_STAGE" "GMAIL_TESTS_STAGE" "AUTHENTICATION_TESTS_STAGE")
           if [[ "${{ github.event.inputs.test_suite }}" == "ALL" ]]; then
             SUITES_JSON=$(printf '%s\n' "${ALL_SUITES[@]}" | jq -R . | jq -c -s .)
             echo "suite-matrix=$SUITES_JSON" >> $GITHUB_OUTPUT

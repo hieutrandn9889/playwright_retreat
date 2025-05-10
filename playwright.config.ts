@@ -39,6 +39,11 @@ const config: PlaywrightTestConfig = {
       testMatch: ['/tests/gmail/*.spec.ts'],
       testIgnore: [],
     },
+    {
+      name: 'authentication',
+      testMatch: ['/tests/authentication/*.spec.ts'],
+      testIgnore: [],
+    },
   ],
   timeout: globTimeout,
   expect: {

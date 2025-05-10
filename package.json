@@ -21,6 +21,8 @@
     "blockchain:tests:prod": "node run-playwright.js chrome blockchain prod",
     "gmail:tests:stage": "node run-playwright.js chrome gmail stage",
     "gmail:tests:prod": "node run-playwright.js chrome gmail prod",
+    "authentication:tests:stage": "node run-playwright.js chrome authentication stage",
+    "authentication:tests:prod": "node run-playwright.js chrome authentication prod",
     "all:tests:stage": "node run-playwright.js chrome all stage",
     "all:tests:prod": "node run-playwright.js chrome all prod",
     "show:report": "npx playwright show-report html_report"
@@ -34,6 +36,7 @@
   "dependencies": {
     "@aws-crypto/crc32": "^5.2.0",
     "@playwright/test": "^1.52.0",
+    "@types/speakeasy": "^2.0.10",
     "@types/xml2js": "^0.4.14",
     "aws-sdk": "^2.1692.0",
     "chalk": "^4.1.2",
@@ -45,6 +48,7 @@
     "nodemailer": "^6.10.1",
     "path": "^0.12.7",
     "playwright": "^1.52.0",
+    "speakeasy": "^2.0.0",
     "web3": "^4.16.0"
   }
 }

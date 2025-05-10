@@ -4,6 +4,7 @@ import { ChatPage } from '../Pages/chat.page'
 import { SoftServePage } from '../Pages/softserve.page'
 import { BookRetreatsPage } from '../Pages/bookretreats.page'
 import { GmailApi } from '../APIs/gmailApi'
+import { OTPSignInPage } from '../Pages/otpSignIn.page'
 
 export class PageManager {
   page: Page
@@ -24,5 +25,8 @@ export class PageManager {
   }
   get gmailApi(): GmailApi {
     return new GmailApi()
+  }
+  get otpSignInPage(): OTPSignInPage {
+    return new OTPSignInPage(this.page)
   }
 }
