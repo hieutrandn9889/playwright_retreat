@@ -42,7 +42,7 @@ export class OTPSignInPage extends PageActions {
       await this.fillElement(this.otpInput, otp)
 
       await this.clickElement(this.signInButton)
-      await this.waitForElementPartialText(this.loginSuccessMessageContainer, 'Success!')
+      await this.waitForElementPartialText(this.loginSuccessMessageContainer, 'Success')
     })
   }
 
