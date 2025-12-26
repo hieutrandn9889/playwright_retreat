@@ -49,7 +49,7 @@ test.describe('E2E Tests - Chat App', () => {
     })
 
     await step(`Client checks Support message`, async () => {
-      await clientPageManager.chatPage.checkMessageInChat(SupportData.message, `${SupportData.userName}fail`)
+      await clientPageManager.chatPage.checkMessageInChat(SupportData.message, SupportData.userName)
     })
   })
 })

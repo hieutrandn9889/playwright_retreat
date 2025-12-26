@@ -28,3 +28,7 @@ HTML reports are deployed to GitHub Pages and can be viewed at https://alexzavg.
 - https://alexzavg.github.io/playwright_retreat/AUTHENTICATION_TESTS_PROD
 
 Same for stage env, just replace `PROD` prefix with `STAGE`.
+
+# run blockchain:tests:stage
+yarn kill:processes
+yarn blockchain:tests:stage

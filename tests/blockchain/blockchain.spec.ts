@@ -11,10 +11,10 @@ console.log('Using Ganache URL:', ganacheUrl)
 test.describe('Local private ETH blockchain tests', () => {
   test.beforeAll(async () => {
     console.log('🚀 Starting Ganache...')
-    ganacheProcess = spawn('ganache', [], { stdio: 'inherit' })
+    ganacheProcess = spawn('npx', ['ganache', '--server.port', '8545'], { stdio: 'inherit', shell: true })
 
     console.log('⏳ Waiting for Ganache to start...')
-    await new Promise((resolve) => setTimeout(resolve, 3000))
+    await new Promise((resolve) => setTimeout(resolve, 10000))
     console.log('✅ Ganache started')
   })
 
@@ -28,8 +28,10 @@ test.describe('Local private ETH blockchain tests', () => {
   test('sends transaction and validates balances', async () => {
     const web3 = new Web3(ganacheUrl)
 
+    let accounts: string[] = []
+    
     await step('gets accounts from ganache', async () => {
-      const accounts = await web3.eth.getAccounts()
+      accounts = await web3.eth.getAccounts()
       console.log('Accounts from Ganache:', accounts)
       expect(accounts.length).toBeGreaterThan(1)
     })
@@ -40,7 +42,6 @@ test.describe('Local private ETH blockchain tests', () => {
     let balanceReceiverBefore: string
 
     await step('initializes sender and receiver addresses', async () => {
-      const accounts = await web3.eth.getAccounts()
       sender = accounts[0]
       receiver = accounts[1]
       console.log('Sender address:', sender)
