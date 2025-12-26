@@ -35,7 +35,7 @@
   "license": "ISC",
   "dependencies": {
     "@aws-crypto/crc32": "^5.2.0",
-    "@playwright/test": "^1.52.0",
+    "@playwright/test": "^1.57.0",
     "@types/speakeasy": "^2.0.10",
     "@types/xml2js": "^0.4.14",
     "aws-sdk": "^2.1692.0",
@@ -47,7 +47,7 @@
     "googleapis": "^148.0.0",
     "nodemailer": "^6.10.1",
     "path": "^0.12.7",
-    "playwright": "^1.52.0",
+    "playwright": "^1.57.0",
     "speakeasy": "^2.0.0",
     "web3": "^4.16.0"
   }
