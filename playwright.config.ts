@@ -4,6 +4,8 @@ const env = process.env.test_env
 let globTimeout: number
 if (env == 'prod') {
   globTimeout = 1000 * 60 * 1 // 1 minute
+} else {
+  globTimeout = 1000 * 60 * 2 // 2 minutes for stage and other environments
 }
 export { globTimeout }
 

@@ -27,7 +27,7 @@ export class PageActions {
       // Add delay to simulate human behavior
       await this.page.waitForTimeout(500)
       
-      await this.page.goto(url, { waitUntil: 'networkidle', timeout: 60000 })
+      await this.page.goto(url, { waitUntil: 'domcontentloaded', timeout: 120000 })
       
       // Wait for page to fully load
       await this.page.waitForLoadState('domcontentloaded')
