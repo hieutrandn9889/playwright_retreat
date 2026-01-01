@@ -21,7 +21,7 @@
     "blockchain:tests:prod": "node run-playwright.js chrome blockchain prod",
     "gmail:tests:stage": "node run-playwright.js chrome gmail stage",
     "gmail:tests:prod": "node run-playwright.js chrome gmail prod",
-    "authentication:tests:stage": "cross-env ENV_NAME=STAGE npx playwright test tests/authentication/*.spec.ts",
+    "authentication:tests:stage": "node run-playwright.js chrome authentication stage",
     "authentication:tests:prod": "node run-playwright.js chrome authentication prod",
     "all:tests:stage": "node run-playwright.js chrome all stage",
     "all:tests:prod": "node run-playwright.js chrome all prod",
