@@ -1,37 +1,37 @@
 export const urls = {
-  "us": `${process.env.SOFTSERVE_BASE_URL!}/en-us`,
-  "ua": `${process.env.SOFTSERVE_BASE_URL!}/uk-ua`,
-}
+  "us": `${process.env.SOFTSERVE_BASE_URL?.trim()}/en-us`,
+  "ua": `${process.env.SOFTSERVE_BASE_URL?.trim()}/uk-ua`,
+};
 
 export const serviceCategories = {
   "us": [
     "Engineering Services",
     "Cloud & DevOps",
     "Big Data & Analytics",
-    "AI & ML",
+    "AI/ML",
     "Generative AI",
     "Internet of Things",
     "Experience Design",
-    "Cybersecurity",
+    "Cybersecurity and Compliance Services",
     "Experience Platforms",
-    "Extended Reality",
-    "Robotics",
+    "XR and Spatial Computing",
     "Research & Development",
+    "Robotics & Advanced Automation",
     "Quantum Computing"
   ],
   "ua": [
-    "Програмне забезпечення",
+    "Інжинірингові послуги",
     "Хмарні технології",
-    "Великі дані",
+    "Великі дані й аналітика",
     "AI & ML",
     "Генеративний ШІ",
-    "Інтернет речей",
-    "Сервісний дизайн",
-    "Кібербезпека",
+    "Інтернет Речей",
+    "Дизайн досвіду",
+    "Хмарна безпека та відповідність вимогам",
     "Цифрові платформи",
-    "Розширена реальність",
+    "XR та Просторові Обчислення",
+    "Дослідження Та Розробки",
     "Робототехніка",
-    "Дослідження та розробка (R&D)",
     "Квантові обчислення"
   ]
 }

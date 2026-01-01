@@ -9,6 +9,11 @@ test.describe('E2E Tests - Localization', () => {
 
       await pageManager.pageActions.openUrl(url)
       const categories = serviceCategories[region]
+      
+      // Wait for the service items to be visible
+      await expect(pageManager.softservePage.serviceItemContent.first()).toBeVisible({ timeout: 15000 })
+      
+      // Get the service items content
       const elements = await pageManager.softservePage.serviceItemContent.allTextContents()
       console.log(`elements.length: ${elements.length}`)
       console.log(`categories.length: ${categories.length}`)
@@ -19,7 +24,7 @@ test.describe('E2E Tests - Localization', () => {
         const trimmedCategory = categories[i].trim()
         console.log(`Comparing: ${trimmedElement} with ${trimmedCategory}`)
         expect(trimmedElement).toBe(trimmedCategory)
-        await page.waitForTimeout(500) // Small delay for readability
+        // Removed delay - no longer needed
       }
     })
   })

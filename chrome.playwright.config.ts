@@ -11,17 +11,25 @@ const config: PlaywrightTestConfig = {
   use: {
     ...base.use,
     headless: true,
-    viewport: null,
+    viewport: { width: 1280, height: 720 },
     ignoreHTTPSErrors: true,
+    userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
     launchOptions: {
-      slowMo: 1000, // for demo purposes, emulates real user behavior with a bit of delay
+      slowMo: 500,
       channel: 'chrome',
       args: [
         '--start-maximized',
+        '--disable-blink-features=AutomationControlled',
         '--disable-extensions',
-        '--incognito',
-        '--test-type=browser',
-        '--disable-dev-shm-usage'
+        '--disable-sync',
+        '--disable-default-apps',
+        '--disable-plugins',
+        '--disable-images',
+        '--disable-component-extensions-with-background-pages',
+        '--disable-default-apps',
+        '--enable-automation=false',
+        '--disable-dev-shm-usage',
+        '--single-process=false'
       ]
     }
   },
