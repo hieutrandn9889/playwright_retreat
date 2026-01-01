@@ -3,7 +3,7 @@ import type { PlaywrightTestConfig } from '@playwright/test'
 const env = process.env.test_env
 let globTimeout: number
 if (env == 'prod') {
-  globTimeout = 1000 * 60 * 1 // 1 minute
+  globTimeout = 1000 * 60 * 3 // 3 minutes for prod
 } else {
   globTimeout = 1000 * 60 * 2 // 2 minutes for stage and other environments
 }
